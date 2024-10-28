@@ -55,6 +55,13 @@ const FormLogin = () => {
         <Form.Item>
           <a href="#">¿Olvidaste tu contraseña?</a>
         </Form.Item>
+
+        <Form.Item>
+        <Button type="link" onClick={() => navigate('/registro')}>
+          Crear cuenta
+        </Button>
+        </Form.Item>
+
       </Form>
     </Card>
   );
