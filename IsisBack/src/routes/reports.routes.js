@@ -3,22 +3,16 @@ import * as reportCtrl from '../Controllers/reports.controller.js';
 
 const router = Router();
 
-// Obtener todos los reportes
-router.get('/', reportCtrl.getReports);
+// Obtener reporte
+router.get('/', reportCtrl.getReport);
 
 
-// Crear un nuevo reporte
-router.post('/', reportCtrl.createReport);
+// actualizar reporte
+router.get('/update', reportCtrl.updateReport);
 
 
-// Obtener un reporte por ID
-router.get('/:id', reportCtrl.getReportById);
-
-// Actualizar un reporte por ID
-router.put('/:id', reportCtrl.updateReport);
-
-// Eliminar un reporte por ID
-router.delete('/:id', reportCtrl.deleteReport);
+// resetear reporte
+router.get('/:id', reportCtrl.resetReport);
 
 
 export default router;

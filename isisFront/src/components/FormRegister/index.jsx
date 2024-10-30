@@ -11,14 +11,14 @@ const FormRegister = () => {
   const navigate = useNavigate();
 
   const onFinish = async (values) => {
-    setLoading(true);
+    
     try {
-      await register(values.email, values.password);
+      await register(values.username, values.confirmPassword);
       console.log('Registro exitoso');
       navigate('/');
     } catch (error) {
       console.error('Error al registrar:', error);
-      setRegisterError(true);
+      
     } finally {
       setLoading(false);
     }
@@ -35,10 +35,10 @@ const FormRegister = () => {
     <Card title="Registrarse" className="register-card">
       <Form form={form} name="register" onFinish={onFinish}> {/* Se añade el form={form} */}
         <Form.Item
-          name="email"
-          rules={[{ required: true, message: 'Por favor ingresa tu correo!' }]}
+          name="username"
+          rules={[{ required: true, message: 'Por favor ingresa tu usuario!' }]}
         >
-          <Input placeholder="Email" />
+          <Input placeholder="Usuario" />
         </Form.Item>
 
         <Form.Item
