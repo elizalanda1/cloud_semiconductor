@@ -38,15 +38,17 @@ async def disconnect():
     await ctler.disconnect()
     await asyncio.sleep(minimal_cmd_space)
 
-# Mantener la banda corriendo
 async def keep_belt_running():
     while True:
         await ctler.ask_stats()
-        await asyncio.sleep(1)  # Verificar cada segundo
+        await asyncio.sleep(0.2)  # Verifica cada 200ms
 
-        if ctler.last_status.belt_state != 1:  # Si la banda no está en modo "running"
-            await ctler.start_belt()  # Reiniciar la banda
-        await asyncio.sleep(1)  
+        if ctler.last_status.belt_state != 1 or ctler.last_status.mode != WalkingPad.MODE_MANUAL:
+            await ctler.switch_mode(WalkingPad.MODE_MANUAL)
+            await asyncio.sleep(0.2)
+            await ctler.start_belt()
+        await asyncio.sleep(0.2)
+
 
 @app.route("/startwalk", methods=['POST'])
 async def start_walk():
@@ -63,13 +65,13 @@ async def start_walk():
         await ctler.change_speed(5)
         await asyncio.sleep(0.5)
     
-        asyncio.create_task(keep_belt_running())  # Mantener la banda corriendo
+        #asyncio.create_task(keep_belt_running())  # Mantener la banda corriendo
     finally:
         await disconnect()
 
     return last_status
 
-@app.route("/walk2", methods=['POST'])
+@app.route("/startwalk2", methods=['POST'])
 async def walk2():
     try:
         await connect()
@@ -80,20 +82,18 @@ async def walk2():
         await ctler.start_belt()
         await asyncio.sleep(0.5)
 
-        #bajar velocidad
+        # Bajar velocidad
         await ctler.change_speed(5)
         await asyncio.sleep(0.5)
 
-        await asyncio.sleep(20)
+        # Esperar 2 segundos antes de detener la caminadora
+        await asyncio.sleep(8)
         await ctler.switch_mode(WalkingPad.MODE_STANDBY)  # Detener la caminadora
-        await asyncio.sleep(minimal_cmd_space)   
-
-        #asyncio.create_task(keep_belt_running())  # Mantener la banda corriendo
+        await asyncio.sleep(minimal_cmd_space)
     finally:
         await disconnect()
 
     return last_status
-
 
 
 @app.route("/finishwalk", methods=['POST'])
