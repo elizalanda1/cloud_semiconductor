@@ -1,0 +1,6 @@
+Flask
+ph4-walkingpad==1.0.2
+pyyaml  # Elimina la versión específica
+psycopg2==2.9.3
+wlkatapython
+pyserial==3.5
