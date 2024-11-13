@@ -55,4 +55,20 @@ export const fetchInspectionResult = async () => {
     }
   };
 
- 
+  
+  
+  // Nueva función para obtener el flujo de la cámara en formato MJPEG
+export const fetchCameraStream = async () => {
+  try {
+    // Nota: Para MJPEG, generalmente no necesitas usar axios, puedes usar una URL directamente
+    // Aquí se muestra cómo obtener la URL usando axios por consistencia
+    const response = await axios.get(`${BASE_URL}/camera/video`, {
+      responseType: 'blob', // Importante para recibir datos binarios
+    });
+    return URL.createObjectURL(response.data); // Crear una URL temporal para el blob
+    //console.log('flujo de la camara envaido',)
+  } catch (error) {
+    console.error('Error al obtener el flujo de la cámara:', error);
+    throw error;
+  }
+};

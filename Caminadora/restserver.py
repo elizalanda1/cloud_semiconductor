@@ -87,7 +87,7 @@ async def walk2():
         await asyncio.sleep(0.5)
 
         # Esperar 2 segundos antes de detener la caminadora
-        await asyncio.sleep(8)
+        await asyncio.sleep(5.2)
         await ctler.switch_mode(WalkingPad.MODE_STANDBY)  # Detener la caminadora
         await asyncio.sleep(minimal_cmd_space)
     finally:
