@@ -222,6 +222,54 @@ async def get_current_mode():
     finally:
         await disconnect()
 
+#Caminadora y brazo simultaneamente
+@app.route("/startwalk_defective", methods=['POST'])
+async def startwalk_defective():
+    try:
+        # Primero, ejecutar el movimiento de la caminadora
+        await connect()
+        await ctler.switch_mode(WalkingPad.MODE_MANUAL)  # Cambiar al modo manual
+        await asyncio.sleep(0.5)
+
+        # Enviar comando de arranque de banda
+        await ctler.start_belt()
+        await asyncio.sleep(0.5)
+
+        # Bajar velocidad
+        await ctler.change_speed(5)
+        await asyncio.sleep(0.5)
+
+        # Esperar 5.2 segundos antes de detener la caminadora
+        await asyncio.sleep(5.2)
+        await ctler.switch_mode(WalkingPad.MODE_STANDBY)  # Detener la caminadora
+        await asyncio.sleep(minimal_cmd_space)
+
+        # Ahora ejecutar el movimiento del brazo robótico después de que termine la caminadora
+        try:
+            # Ejecutar la secuencia de movimiento de "move_to_defective"
+            mirobot.writeangle(0, 0, 0, 50, 0, -50, 0)
+            time.sleep(2)
+            mirobot.pump(1)  # Activar el agarre
+            time.sleep(2)
+            mirobot.writeangle(0, 0, 0, 35, 0, -50, 0)
+            time.sleep(2)
+            mirobot.writeangle(0, 90, 0, 35, 0, -50, 0)
+            time.sleep(2)
+            mirobot.pump(0)  # Desactivar el agarre
+            time.sleep(2)
+            mirobot.writeangle(0, 0, 0, 0, 0, 0, 0)
+            time.sleep(2)
+            return jsonify({"status": "Movimiento hacia posición 'Defective' completado con agarre"}), 200
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
+    finally:
+        await disconnect()
+
+    return jsonify({"status": "Caminadora y brazo robótico ejecutados correctamente"}), 200
+
+
+
 # Ejecutar el servidor
 if __name__ == '__main__':
     try:
