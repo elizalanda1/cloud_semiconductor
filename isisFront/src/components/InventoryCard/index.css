@@ -12,3 +12,17 @@
     background-color: #fafafa;
   }
   
+  .inventory-container {
+    padding: 20px;
+  }
+  
+  .update-button {
+    margin-bottom: 16px;
+    display: block;
+  }
+  
+  .inventory-card {
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  

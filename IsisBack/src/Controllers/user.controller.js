@@ -27,27 +27,26 @@ export const registerUser = async (req, res) => {
 export const loginUser = async (req, res) => {
   try {
     const { username, password } = req.body;
-    
+
     const user = await User.findOne({ username });
     if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
-    
-    // Comparar la contraseña en texto plano con la contraseña cifrada almacenada
+
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) return res.status(401).json({ message: 'Contraseña incorrecta' });
-    
-    // Crear token JWT (comentado para futura implementación)
-    // const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    
-    // Respuesta en caso de éxito sin token
-    res.status(200).json({ message: 'Inicio de sesión exitoso' });
-    
-    // En el futuro, usa esta línea para responder con el token
-    // res.status(200).json({ token });
-    
+
+    // Crear el token JWT con el ID de usuario y el role
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET, 
+      { expiresIn: '8h' }
+    );
+
+    res.status(200).json({ message: 'Inicio de sesión exitoso', token });
   } catch (error) {
     res.status(500).json({ message: 'Error al iniciar sesión', error });
   }
 };
+
 
 // Obtener información de un usuario por ID
 export const getUserById = async (req, res) => {

@@ -4,13 +4,12 @@ import { updateInventoryAfterInspection } from './inventory.controller.js';
 
 export const createCircuit = async (req, res) => {
   try {
-    const { name, imageUrl, inspectionResult, processedBy } = req.body;
+    const { name, imageUrl, inspectionResult} = req.body;
 
     const newCircuit = new Circuit({
       name,
       imageUrl,
-      inspectionResult,
-      processedBy
+      inspectionResult
     });
 
     const savedCircuit = await newCircuit.save();

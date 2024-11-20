@@ -4,7 +4,7 @@ import circuitRoutes from "./src/routes/circuits.routes.js";
 import usersRoutes from "./src/routes/user.routes.js";
 import inventoryRoutes from "./src/routes/inventory.routes.js";
 import reportroutes from "./src/routes/reports.routes.js";
-import cameraRoutes from "./src/routes/camera.routes.js";
+//import { authJwt } from './src/middlewares/authJwt.js';
 
 
 
@@ -18,12 +18,11 @@ app.get(`/`, (req, res) => {
     res.send(`Isis Emfutech 2024 JAAC`)
 });
 
-// Rutas
+// Rutas [authJwt.verifyToken, authJwt.isAdmin],
 app.use(`/api/circuits`, circuitRoutes);
 app.use(`/api/user`, usersRoutes);
 app.use(`/api/inventory`, inventoryRoutes);
 app.use(`/api/report`, reportroutes);
-app.use('/api/camera', cameraRoutes);
 
 
 export default app;

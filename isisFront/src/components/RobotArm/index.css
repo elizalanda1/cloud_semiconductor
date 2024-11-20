@@ -1,0 +1,72 @@
+/* src/components/RobotArmControl.css */
+
+.robot-arm-control {
+    background-color: #f7f8fa;
+    border-radius: 8px;
+    padding: 20px;
+    max-width: 400px;
+    margin: auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .robot-arm-control h3 {
+    text-align: center;
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  .control-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  
+  .control-row span {
+    font-size: 1em;
+    font-weight: bold;
+    color: #666;
+    width: 20%;
+    text-align: center;
+  }
+  
+  .control-row button {
+    width: 20%;
+    border: none;
+    padding: 10px;
+    background-color: #d3d3d3;
+    color: #333;
+    font-weight: bold;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+  }
+  
+  .control-row button:hover {
+    background-color: #bcbcbc;
+  }
+  
+  .control-row button:first-child {
+    margin-right: 10px;
+  }
+  
+  .control-row button:last-child {
+    margin-left: 10px;
+  }
+  
+  .control-row button:focus {
+    outline: none;
+  }
+  
+  .control-row .ant-btn-primary {
+    width: 40%;
+    margin: 0 auto;
+    background-color: #1890ff;
+    color: #fff;
+  }
+  
+  .control-row .ant-btn-primary:hover {
+    background-color: #40a9ff;
+  }
+  

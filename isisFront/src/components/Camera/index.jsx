@@ -1,44 +1,23 @@
 // src/components/CameraFeed.jsx
 
-import React, { useEffect, useRef } from 'react';
-import { fetchCameraStream } from '../../services/Api';
+import React, { useEffect, useState } from 'react';
+import { getVideoFeedUrl } from '../../services/Flask';
 import './index.css';
 
 const CameraFeed = () => {
-  const videoRef = useRef(null);
+  const [videoUrl, setVideoUrl] = useState('');
 
   useEffect(() => {
-    const startStream = async () => {
-      try {
-        const streamUrl = await fetchCameraStream();
-        if (videoRef.current) {
-          videoRef.current.src = streamUrl;
-          videoRef.current.play().catch((error) => {
-            console.error('Error al reproducir el video:', error);
-          });
-        }
-      } catch (error) {
-        console.error('Error al cargar el flujo de la cámara:', error);
-      }
-    };
-
-    startStream();
-
-    return () => {
-      if (videoRef.current && videoRef.current.src) {
-        URL.revokeObjectURL(videoRef.current.src);
-      }
-    };
+    // Obtén la URL del flujo de video desde el servicio
+    const url = getVideoFeedUrl();
+    setVideoUrl(url);
   }, []);
 
   return (
     <div className="camera-feed">
-      <h2>Transmisión de la Cámara en Tiempo Real</h2>
-      <video
-        ref={videoRef}
-        autoPlay
-        muted
-        playsInline
+      <img
+        src={videoUrl}
+        alt="Transmisión de la cámara en tiempo real"
         className="camera-video"
         style={{ width: '640px', height: '480px' }}
       />

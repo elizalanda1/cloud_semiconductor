@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo.png';
 import './index.css';
 
-const tabNames = ['Home', 'Inventary', 'Reports'];
+const tabNames = ['Home', 'Inventary', 'Analitics','Arm Controll'];
 const items = tabNames.map((tab, index) => ({
   key: index,
   label: <Link to={`/${tab.toLowerCase()}`}>{tab}</Link>,
@@ -39,7 +39,7 @@ const Nav = () => {
         <Avatar icon={<UserOutlined />} onClick={showDrawer} />
         <Drawer title="User Menu" placement="right" onClose={closeDrawer} visible={drawerVisible}>
           {/* Opciones dentro del Drawer */}
-          <p><Link to="/profile">Perfil</Link></p>
+          {/*<p><Link to="/profile">Perfil</Link></p>*/}
           <button onClick={handleLogout} className="logout-button">
         Cerrar Sesión
       </button>

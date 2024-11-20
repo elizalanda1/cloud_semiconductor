@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card } from 'antd';
+import { Card, Button } from 'antd';
 import { fetchInventoryData } from '../../services/Api';
 import './index.css';
 
@@ -7,19 +7,20 @@ const InventoryCard = () => {
   const [inventoryData, setInventoryData] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const getInventoryData = async () => {
-      try {
-        const data = await fetchInventoryData();
-        setInventoryData(data);
-      } catch (error) {
-        console.error('Error al cargar datos de inventario:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const loadInventoryData = async () => {
+    setLoading(true);
+    try {
+      const data = await fetchInventoryData();
+      setInventoryData(data);
+    } catch (error) {
+      console.error('Error al cargar datos de inventario:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    getInventoryData();
+  useEffect(() => {
+    loadInventoryData();
   }, []);
 
   if (loading) {
@@ -28,6 +29,9 @@ const InventoryCard = () => {
 
   return (
     <div className="inventory-container">
+      <Button type="primary" onClick={loadInventoryData} className="update-button">
+        Actualizar Inventario
+      </Button>
       {inventoryData.map((item) => (
         <Card key={item._id} title={`Circuito: ${item.name}`} className="inventory-card">
           <p>Cantidad Total: {item.totalQuantity}</p>

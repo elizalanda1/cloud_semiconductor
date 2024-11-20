@@ -192,6 +192,24 @@ async def finish_walk():
         await disconnect()
     return "Caminadora detenida", 200
 
+@app.route("/emergency_stop", methods=['POST'])
+async def emergency_stop():
+    try:
+        # Conectar a la caminadora y detenerla en modo de espera
+        await connect()
+        await ctler.switch_mode(WalkingPad.MODE_STANDBY)  # Pone la caminadora en modo de espera
+        await asyncio.sleep(minimal_cmd_space)
+
+        # Detener cualquier movimiento en curso del brazo robótico
+        mirobot.cancellation()  # Ejecuta el comando de cancelación para detener el brazo robótico
+        mirobot.pump(0)  # Desactiva el agarre si está activo
+
+        return jsonify({"status": "Paro de emergencia activado: caminadora y brazo detenidos"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        await disconnect()
+
 @app.route("/speed", methods=['POST'])
 async def speed():
     try:
@@ -222,31 +240,27 @@ async def get_current_mode():
     finally:
         await disconnect()
 
-#Caminadora y brazo simultaneamente
 @app.route("/startwalk_defective", methods=['POST'])
 async def startwalk_defective():
     try:
-        # Primero, ejecutar el movimiento de la caminadora
+        # Conectar a la caminadora, ejecutar todas las instrucciones y desconectar
         await connect()
-        await ctler.switch_mode(WalkingPad.MODE_MANUAL)  # Cambiar al modo manual
-        await asyncio.sleep(0.5)
-
-        # Enviar comando de arranque de banda
-        await ctler.start_belt()
-        await asyncio.sleep(0.5)
-
-        # Bajar velocidad
-        await ctler.change_speed(5)
-        await asyncio.sleep(0.5)
-
-        # Esperar 5.2 segundos antes de detener la caminadora
-        await asyncio.sleep(5.2)
-        await ctler.switch_mode(WalkingPad.MODE_STANDBY)  # Detener la caminadora
-        await asyncio.sleep(minimal_cmd_space)
-
-        # Ahora ejecutar el movimiento del brazo robótico después de que termine la caminadora
         try:
-            # Ejecutar la secuencia de movimiento de "move_to_defective"
+            # Cambiar al modo manual, iniciar la banda y ajustar velocidad en una secuencia
+            await ctler.switch_mode(WalkingPad.MODE_MANUAL)
+            await asyncio.sleep(0.5)
+            await ctler.start_belt()
+            await asyncio.sleep(0.5)
+            await ctler.change_speed(5)
+            await asyncio.sleep(5.2)  # Mantener caminadora en movimiento por 5.2 segundos
+            await ctler.switch_mode(WalkingPad.MODE_STANDBY)  # Detener la caminadora
+            await asyncio.sleep(minimal_cmd_space)
+        finally:
+            await disconnect()  # Asegurar desconexión de la caminadora
+
+        # Instrucciones para el brazo robótico
+        try:
+            # Secuencia de movimiento hacia la posición "defective"
             mirobot.writeangle(0, 0, 0, 50, 0, -50, 0)
             time.sleep(2)
             mirobot.pump(1)  # Activar el agarre
@@ -263,8 +277,8 @@ async def startwalk_defective():
         except Exception as e:
             return jsonify({"error": str(e)}), 500
 
-    finally:
-        await disconnect()
+    except Exception as e:
+        return jsonify({"error": f"Error en la conexión o movimiento de la caminadora: {str(e)}"}), 500
 
     return jsonify({"status": "Caminadora y brazo robótico ejecutados correctamente"}), 200
 
