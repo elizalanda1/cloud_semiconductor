@@ -9,3 +9,9 @@ AI/yolov5
 isis/AI/imagenes_aumentadas.zip
 AI/imagenes_aumentadas.zip
 ./imagenes_aumentadas.zip
+
+IsisBack/node_modules
+IsisBack/package-lock.json
+
+isisFront/node_modules
+isisFront/package-lock.json
