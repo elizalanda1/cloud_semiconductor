@@ -1,2 +1,0 @@
-pip install pyserial
-pip install wlkatapython  # Solo si está disponible en PyPI o como paquete descargado
