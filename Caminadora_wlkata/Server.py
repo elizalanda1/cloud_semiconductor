@@ -6,7 +6,6 @@ from ph4_walkingpad import pad
 from ph4_walkingpad.pad import WalkingPad, Controller
 from ph4_walkingpad.utils import setup_logging
 import asyncio
-import yaml
 import cv2
 import signal
 from flask_cors import CORS
