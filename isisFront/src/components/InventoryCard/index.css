@@ -1,0 +1,28 @@
+.inventory-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+  }
+  
+  .inventory-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 16px;
+    background-color: #fafafa;
+  }
+  
+  .inventory-container {
+    padding: 20px;
+  }
+  
+  .update-button {
+    margin-bottom: 16px;
+    display: block;
+  }
+  
+  .inventory-card {
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
