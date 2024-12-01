@@ -1,24 +1,75 @@
 .main-layout {
-    padding: 16px;
-  }
-  
+  padding: 16px;
+  background-color: #f5f5f5;
+}
+
+.content-row {
+  margin-top: 16px;
+  display: flex;
+  flex-wrap: nowrap; /* Evita que las columnas se apilen automáticamente */
+  justify-content: space-between; /* Distribuye equitativamente las columnas */
+  gap: 16px; /* Espaciado entre columnas */
+  width: 100%; /* Asegura que el contenedor ocupe todo el ancho */
+}
+
+.inventory-col,
+.camera-col,
+.report-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background-color: #fff;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.inventory-col {
+  flex: 1 0 20%; /* Ocupa el 20% del espacio disponible */
+  max-width: 20%;
+}
+
+.camera-col {
+  flex: 2 0 60%; /* Ocupa el 60% del espacio disponible */
+  max-width: 60%;
+}
+
+.report-col {
+  flex: 1 0 20%; /* Ocupa el 20% del espacio disponible */
+  max-width: 20%;
+}
+
+/* Ajustes para evitar márgenes negativos */
+.ant-row {
+  margin-left: 0 !important; /* Corrige márgenes negativos */
+  margin-right: 0 !important; /* Corrige márgenes negativos */
+}
+
+.section-title {
+  text-align: center;
+  font-size: 1.5em;
+  margin-bottom: 16px;
+}
+
+.emergency-button {
+  align-self: flex-start;
+}
+
+.report-summary {
+  margin-top: auto; /* Empuja el contenido hacia la parte inferior */
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
   .content-row {
-    margin-top: 16px;
+    flex-direction: column; /* Apila las columnas */
+    gap: 24px;
   }
-  
-  .inventory-col, .camera-col, .report-col {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+
+  .inventory-col,
+  .camera-col,
+  .report-col {
+    flex: 1 0 100%; /* Ocupan el 100% del ancho */
+    max-width: 100%;
   }
-  
-  .section-title {
-    text-align: center;
-    font-size: 1.5em;
-    margin-bottom: 16px;
-  }
-  
-  .emergency-button {
-    margin-bottom: 16px; /* Ajusta el margen según sea necesario */
-  }
-  
+}

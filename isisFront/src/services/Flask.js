@@ -86,3 +86,33 @@ export const stopContinuousClassification = async () => {
     throw error;
   }
 };
+
+// Servicio para mover el brazo robótico con el endpoint /move_arm2
+export const moveArm2 = async () => {
+  try {
+    const response = await axios.post(`${BASE_URL}/move_arm2`, {}, {
+      headers: { 'Content-Type': 'application/json' },
+      timeout: 30000, // Tiempo de espera de 30 segundos
+    });
+    console.log("Movimiento con /move_arm2 iniciado exitosamente.");
+    return response.data;
+  } catch (error) {
+    console.error('Error al iniciar el movimiento con /move_arm2:', error);
+    throw error;
+  }
+};
+
+// Servicio para detener el movimiento del brazo robótico en el endpoint /stop_move_arm2
+export const stopMoveArm2 = async () => {
+  try {
+    const response = await axios.post(`${BASE_URL}/stop_move_arm2`, {}, {
+      headers: { 'Content-Type': 'application/json' },
+      timeout: 30000, // Tiempo de espera de 30 segundos
+    });
+    console.log("Movimiento con /move_arm2 detenido exitosamente.");
+    return response.data;
+  } catch (error) {
+    console.error('Error al detener el movimiento con /stop_move_arm2:', error);
+    throw error;
+  }
+};

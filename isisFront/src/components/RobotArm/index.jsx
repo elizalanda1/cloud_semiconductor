@@ -1,9 +1,7 @@
-// src/components/RobotArmControl.jsx
-
 import React, { useState } from 'react';
 import { Button, Slider, Row, Col } from 'antd';
 import { SwapOutlined } from '@ant-design/icons';
-import { moveArm } from '../../services/Flask';
+import { moveArm, moveArm2, stopMoveArm2 } from '../../services/Flask';
 import './index.css';
 
 const RobotArmControl = () => {
@@ -16,7 +14,8 @@ const RobotArmControl = () => {
     J6: 0,
   });
 
-  const [useSliders, setUseSliders] = useState(false); // Controla el modo de la interfaz
+  const [controlMode, setControlMode] = useState('sliders'); // 'sliders', 'buttons', 'global'
+  const [isArmActive, setIsArmActive] = useState(false); // Controla si el brazo está activado
 
   const updateAngleAndMove = async (joint, newAngle) => {
     const updatedAngles = {
@@ -35,15 +34,31 @@ const RobotArmControl = () => {
     }
   };
 
-  const handleSliderChange = async (joint, value) => {
-    updateAngleAndMove(joint, value); // Enviar el nuevo valor al servidor
+  const handleActivation = async () => {
+    try {
+      await moveArm2();
+      setIsArmActive(true);
+      console.log('Brazo activado.');
+    } catch (error) {
+      console.error('Error al activar el brazo:', error);
+    }
+  };
+
+  const handleDeactivation = async () => {
+    try {
+      await stopMoveArm2();
+      setIsArmActive(false);
+      console.log('Brazo desactivado.');
+    } catch (error) {
+      console.error('Error al desactivar el brazo:', error);
+    }
   };
 
   return (
     <div className="robot-arm-control">
       <h3>── MOTION CONTROL ──</h3>
 
-      {useSliders ? (
+      {controlMode === 'sliders' && (
         // Modo con sliders
         <>
           {[1, 2, 3, 4, 5, 6].map((joint) => (
@@ -57,7 +72,7 @@ const RobotArmControl = () => {
                   max={180}
                   value={angles[`J${joint}`]}
                   onChange={(value) => setAngles((prev) => ({ ...prev, [`J${joint}`]: value }))}
-                  onAfterChange={(value) => handleSliderChange(`J${joint}`, value)} // Enviar al soltar el slider
+                  onAfterChange={(value) => updateAngleAndMove(`J${joint}`, value)}
                   tooltip={{ formatter: (value) => `${value}°` }}
                 />
               </Col>
@@ -67,7 +82,9 @@ const RobotArmControl = () => {
             </Row>
           ))}
         </>
-      ) : (
+      )}
+
+      {controlMode === 'buttons' && (
         // Modo con botones
         <>
           {[1, 2, 3, 4, 5, 6].map((joint) => (
@@ -89,14 +106,34 @@ const RobotArmControl = () => {
         </>
       )}
 
-      {/* Botón de switch */}
+      {controlMode === 'global' && (
+        // Modo global con activación y desactivación
+        <div className="global-control">
+          <h4>Control Global del Brazo</h4>
+          {!isArmActive ? (
+            <Button type="primary" onClick={handleActivation}>
+              Activar Movimiento
+            </Button>
+          ) : (
+            <Button type="danger" onClick={handleDeactivation}>
+              Detener Movimiento
+            </Button>
+          )}
+        </div>
+      )}
+
+      {/* Botón para cambiar entre modos */}
       <Button
         type="default"
         icon={<SwapOutlined />}
-        onClick={() => setUseSliders(!useSliders)}
+        onClick={() =>
+          setControlMode(
+            controlMode === 'sliders' ? 'buttons' : controlMode === 'buttons' ? 'global' : 'sliders'
+          )
+        }
         style={{ marginTop: '1rem' }}
       >
-        Cambiar a {useSliders ? 'Botones' : 'Sliders'}
+        Cambiar a {controlMode === 'sliders' ? 'Botones' : controlMode === 'buttons' ? 'Global' : 'Sliders'}
       </Button>
     </div>
   );

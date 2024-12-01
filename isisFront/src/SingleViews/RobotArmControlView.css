@@ -1,26 +1,69 @@
-/* src/views/RobotArmControlView.css */
-
 .robot-arm-control-view {
   padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .content-row {
   margin-top: 16px;
+  width: 100%;
   display: flex;
-  justify-content: center;
+  flex-wrap: wrap; /* Permite que las columnas se ajusten en pantallas pequeñas */
+  justify-content: center; /* Centra las columnas horizontalmente */
+  align-items: flex-start; /* Alinea el contenido al inicio verticalmente */
+  gap: 16px; /* Espaciado uniforme entre columnas */
 }
 
 .control-column {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px; /* Espacio entre el botón de emergencia y el control del brazo robótico */
+  justify-content: center; /* Centra verticalmente el contenido interno */
+  gap: 16px; /* Espacio entre componentes internos */
+  padding: 16px;
+  background: #f9f9f9; /* Fondo para destacar el contenido */
+  border-radius: 8px; /* Bordes redondeados */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombras ligeras */
+  flex: 1; /* Las columnas comparten el espacio disponible */
+  max-width: 400px; /* Limitar el ancho máximo */
+  text-align: center; /* Centra el texto y el contenido */
 }
 
-/* Ajuste para pantallas pequeñas */
+.camera-col {
+  flex: 2; /* La cámara ocupa más espacio */
+  max-width: 60%; /* Limita el ancho máximo de la cámara */
+}
+
+.inventory-col,
+.report-col {
+  flex: 1; /* Las columnas laterales comparten el espacio restante */
+  max-width: 20%; /* Limita el ancho máximo */
+}
+
+/* Ajustes para pantallas pequeñas */
 @media (max-width: 768px) {
   .content-row {
-    width: 100%;
-    flex-direction: column;
+    flex-direction: column; /* Apila las columnas verticalmente */
+    gap: 24px; /* Mayor espacio entre columnas */
+  }
+
+  .control-column,
+  .camera-col {
+    width: 100%; /* Ocupa todo el ancho disponible */
+    max-width: none;
+  }
+}
+
+/* Ajustes para pantallas muy pequeñas */
+@media (max-width: 480px) {
+  .robot-arm-control-view {
+    padding: 8px;
+  }
+
+  .control-column {
+    padding: 12px;
+    gap: 12px;
   }
 }

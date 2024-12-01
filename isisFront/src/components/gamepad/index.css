@@ -1,0 +1,12 @@
+.move-arm-button {
+    margin: 10px;
+    background-color: #4caf50; /* Verde */
+    color: white;
+  }
+  
+  .stop-move-arm-button {
+    margin: 10px;
+    background-color: #f44336; /* Rojo */
+    color: white;
+  }
+  

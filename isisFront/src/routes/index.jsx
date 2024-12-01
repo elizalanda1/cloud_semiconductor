@@ -8,6 +8,9 @@ import ReportView from '../SingleViews/Reports';
 import UserUpdate from '../components/UserUpdate';
 import RobotArmControlView from '../SingleViews/ArmController'
 import AnalyticsView from '../SingleViews/Analitics'
+
+
+
 const AppRoutes = () => {
   const routes = useRoutes([
     { path: '/', element: <Dashboard /> },
@@ -19,6 +22,7 @@ const AppRoutes = () => {
     { path: '/profile', element: <UserUpdate /> },
     { path: '/arm controll', element: <RobotArmControlView /> },
     { path: '/Analitics', element: <AnalyticsView /> },
+
 
 
 

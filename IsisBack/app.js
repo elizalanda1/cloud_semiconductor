@@ -3,21 +3,13 @@ import cors from 'cors';
 
 const app = express();
 
-const allowedOrigins = ['http://localhost:8079', 'https://isis-front.vercel.app','http://14.10.2.192:8079','http://192.168.10.154:8069', 'http://14.10.2.192:8069', '*'];
-
 app.use(cors({
-    origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            console.error(`Origen no permitido por CORS: ${origin}`);
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
+    origin: '*', // Permitir todos los orígenes temporalmente
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true // Permitir cookies y otros encabezados de autenticación
+    credentials: true
 }));
+
 
 
 // Maneja solicitudes preflight

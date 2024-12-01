@@ -5,5 +5,8 @@ ph4_walkingpad
 Flask[async]
 pyserial
 wlkatapython
-pencv-python
-
+# pencv-python
+cors
+flask_cors
+opencv-python
+inputs

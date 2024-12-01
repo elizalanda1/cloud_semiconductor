@@ -12,6 +12,7 @@ from flask_cors import CORS
 import os
 import subprocess
 import numpy as np
+import hid
 
 
 app = Flask(__name__)
@@ -21,8 +22,8 @@ CORS(app)
 
 serial_port = None
 mirobot = None
-camera1 = cv2.VideoCapture(2)  # Inicializar la cámara
-camera2 = cv2.VideoCapture(0)  # Inicializar la cámara
+camera1 = cv2.VideoCapture(0)  # Inicializar la cámara
+camera2 = cv2.VideoCapture(1)  # Inicializar la cámara
 
 # Evento de parada de emergencia
 emergency_stop_event = asyncio.Event()
@@ -34,8 +35,8 @@ log = setup_logging()
 pad.logger = log
 ctler = Controller()
 
-# Dirección Bluetooth del WalkingPad 1422CE35-1129-9D4B-D12E-FB5E1FD718AA
-WALKINGPAD_ADDRESS = "57:4C:4E:31:0E:C2"
+# Dirección Bluetooth del WalkingPad 1422CE35-1129-9D4B-D12E-FB5E1FD718AA 57:4C:4E:31:0E:C2
+WALKINGPAD_ADDRESS = "1422CE35-1129-9D4B-D12E-FB5E1FD718AA"
 
 # Último estado registrado del WalkingPad
 last_status = {
@@ -50,7 +51,7 @@ def iniciar_conexion():
     global serial_port, mirobot
     try:
         # Configura el puerto serial y el objeto mirobot
-        serial_port = serial.Serial('COM3', 115200, timeout=1)
+        serial_port = serial.Serial('/dev/tty.usbserial-1420', 115200, timeout=1)
         mirobot = wlkatapython.Wlkata_UART()
         mirobot.init(serial_port, -1)
         print("Conexión establecida con el brazo robótico.")
@@ -363,7 +364,127 @@ async def move_arm():
     except Exception as e:
         print(f"Error en el movimiento del brazo robótico: {str(e)}")
         return jsonify({"status": "Error en el movimiento del brazo robótico", "error": str(e)}), 500
+    
+# Inicialización global del dispositivo HID
+device = None
 
+def iniciar_device_hid():
+    global device
+    try:
+        device = hid.device()
+        device.open(0x1DD8, 0x000F)  # Reemplaza con Vendor ID y Product ID
+        device.set_nonblocking(True)
+        print("Gamepad conectado correctamente.")
+    except Exception as e:
+        print(f"No se pudo conectar al gamepad: {e}")
+
+iniciar_device_hid()
+
+def cerrar_device_hid():
+    global device
+    if device is not None:
+        device.close()
+        print("Gamepad desconectado.")
+
+angles = {
+    "J1": 0,
+    "J2": 0,
+    "J3": 0,
+    "J4": 0,
+    "J5": 0,
+    "J6": 0
+}
+current_joint = 1  # Empezar con Joint 1 seleccionado
+prev_joystick_left = {"x": 128, "y": 128}
+prev_joystick_right = {"x": 128, "y": 128}
+prev_buttons = {"byte1": 0, "byte2": 0}
+
+
+# Bandera global para controlar el estado de /move_arm2
+move_arm_active = False
+
+@app.route("/move_arm2", methods=["POST"])
+async def move_arm2():
+    global current_joint, angles, device, prev_buttons, mirobot, move_arm_active
+
+    try:
+        move_arm_active = True  # Activa el bucle
+        while move_arm_active:
+            # Leer datos del gamepad
+            data = device.read(64)
+            if not data:
+                await asyncio.sleep(0.1)
+                continue
+
+            # Leer botones del gamepad
+            buttons_byte_1 = data[4]
+            buttons_byte_2 = data[5]
+
+            # Detectar cambios en los botones
+            if buttons_byte_1 != prev_buttons["byte1"] or buttons_byte_2 != prev_buttons["byte2"]:
+                # **Mapeo exacto de botones**
+                if buttons_byte_1 == 0b1:  # Botón 5
+                    if mirobot is not None:
+                        print("Enviando a Home.")
+                        mirobot.homing()
+                    else:
+                        print("El brazo robótico no está conectado.")
+                elif buttons_byte_2 == 0b100:  # Botón 7
+                    current_joint = max(1, current_joint - 1)
+                    print(f"Joint seleccionado: {current_joint}")
+                elif buttons_byte_2 == 0b1000:  # Botón 8
+                    current_joint = min(6, current_joint + 1)
+                    print(f"Joint seleccionado: {current_joint}")
+                elif buttons_byte_1 == 0b10001111:  # Botón 4
+                    angles[f"J{current_joint}"] = min(180, angles[f"J{current_joint}"] + 5)
+                    print(f"Incrementando Joint {current_joint}: {angles[f'J{current_joint}']}")
+                elif buttons_byte_1 == 0b101111:  # Botón 2
+                    angles[f"J{current_joint}"] = max(-180, angles[f"J{current_joint}"] - 5)
+                    print(f"Decrementando Joint {current_joint}: {angles[f'J{current_joint}']}")
+                elif buttons_byte_1 == 0b11111:  # Botón 1
+                    if mirobot is not None:
+                        print("Activando pump.")
+                        mirobot.pump(1)
+                    else:
+                        print("El brazo robótico no está conectado.")
+                elif buttons_byte_1 == 0b1001111:  # Botón 3
+                    if mirobot is not None:
+                        print("Desactivando pump.")
+                        mirobot.pump(0)
+                    else:
+                        print("El brazo robótico no está conectado.")
+
+            # Actualizar el estado previo de los botones
+            prev_buttons["byte1"] = buttons_byte_1
+            prev_buttons["byte2"] = buttons_byte_2
+
+            # Ejecutar el movimiento con los ángulos actualizados si es necesario
+            if mirobot is not None:
+                mirobot.writeangle(
+                    0,
+                    angles["J1"],
+                    angles["J2"],
+                    angles["J3"],
+                    angles["J4"],
+                    angles["J5"],
+                    angles["J6"],
+                )
+
+            await asyncio.sleep(0.1)  # Breve espera para evitar saturar el loop
+
+    except Exception as e:
+        print(f"Error en el movimiento del brazo robótico: {e}")
+        return jsonify({"status": "Error en el movimiento del brazo robótico", "error": str(e)}), 500
+
+    return jsonify({"status": "El endpoint /move_arm2 ha sido detenido correctamente."}), 200
+
+
+@app.route("/stop_move_arm2", methods=["POST"])
+def stop_move_arm2():
+    global move_arm_active
+    move_arm_active = False  # Detiene el bucle del endpoint
+    print("El endpoint /move_arm2 ha sido detenido.")
+    return jsonify({"status": "El endpoint /move_arm2 ha sido detenido."}), 200
 
 # Generador de frames para el video
 def generate_frames():
