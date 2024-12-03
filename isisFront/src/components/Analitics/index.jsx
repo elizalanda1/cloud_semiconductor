@@ -57,7 +57,7 @@ const Analytics = () => {
   }, []);
 
   if (isLoading) {
-    return <div>Cargando datos...</div>;
+    return <div>Loading Data...</div>;
   }
 
   // Gráfica 1: Cantidad Total en Inventario
@@ -65,7 +65,7 @@ const Analytics = () => {
     labels: inventoryData.map((item) => item.name || 'Sin Nombre'),
     datasets: [
       {
-        label: 'Cantidad Total',
+        label: 'Total Amount',
         data: inventoryData.map((item) => item.totalQuantity || 0),
         backgroundColor: 'rgba(75, 192, 192, 0.6)',
         borderColor: 'rgba(75, 192, 192, 1)',
@@ -79,14 +79,14 @@ const Analytics = () => {
     labels: inventoryData.map((item) => item.name || 'Sin Nombre'),
     datasets: [
       {
-        label: 'Buenos',
+        label: 'Good',
         data: inventoryData.map((item) => item.goodQuantity || 0),
         backgroundColor: 'rgba(54, 162, 235, 0.6)',
         borderColor: 'rgba(54, 162, 235, 1)',
         borderWidth: 1,
       },
       {
-        label: 'Defectuosos',
+        label: 'Defective',
         data: inventoryData.map((item) => item.defectiveQuantity || 0),
         backgroundColor: 'rgba(255, 99, 132, 0.6)',
         borderColor: 'rgba(255, 99, 132, 1)',
@@ -102,7 +102,7 @@ const Analytics = () => {
     ),
     datasets: [
       {
-        label: 'Total Inspeccionados',
+        label: 'Total Inspeccionated',
         data: reportData.map((item) => item.totalInspected || 0),
         borderColor: 'rgba(153, 102, 255, 1)',
         backgroundColor: 'rgba(153, 102, 255, 0.2)',
@@ -119,7 +119,7 @@ const Analytics = () => {
     ),
     datasets: [
       {
-        label: 'Buenos',
+        label: 'Good',
         data: reportData.map((item) => item.totalGood || 0),
         borderColor: 'rgba(75, 192, 192, 1)',
         backgroundColor: 'rgba(75, 192, 192, 0.2)',
@@ -127,7 +127,7 @@ const Analytics = () => {
         tension: 0.4,
       },
       {
-        label: 'Defectuosos',
+        label: 'Defective',
         data: reportData.map((item) => item.totalDefective || 0),
         borderColor: 'rgba(255, 99, 132, 1)',
         backgroundColor: 'rgba(255, 99, 132, 0.2)',
@@ -142,7 +142,7 @@ const Analytics = () => {
   const totalDefective = reportData.reduce((sum, item) => sum + (item.totalDefective || 0), 0);
 
   const pieChartData = {
-    labels: ['Buenos', 'Defectuosos'],
+    labels: ['Good', 'Defective'],
     datasets: [
       {
         data: [totalGood, totalDefective],
@@ -167,10 +167,10 @@ const Analytics = () => {
         Actualizar Gráficas
       </Button>
 
-      <h2>Inventario: Cantidad Total</h2>
+      <h2>Inventory: Total Amount</h2>
       <Bar data={inventoryTotalData} options={options} />
 
-      <h2>Distribución de Buenos y Defectuosos</h2>
+      <h2>Distribution of Good y Defective</h2>
       <Bar data={inventoryDistributionData} options={options} />
 
       {/* <h2>Tendencia de Inspecciones</h2>
@@ -179,7 +179,7 @@ const Analytics = () => {
       <h2>Comparación de Buenos y Defectuosos</h2>
       <Line data={trendLineData} options={options} /> */}
 
-      <h2>Porcentaje de Buenos vs Defectuosos</h2>
+      <h2>Percentage of Good vs Defective</h2>
       <Pie data={pieChartData} options={options} />
     </div>
   );

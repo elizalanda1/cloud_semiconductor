@@ -36,7 +36,7 @@ const Nav = () => {
           <img src={logo} alt="Logo" style={{ height: '40px' }} />
         </Link>
         <Menu mode="horizontal" items={items} style={{ flex: 1, justifyContent: 'center' }} />
-        <Avatar icon={<UserOutlined />} onClick={showDrawer} />
+        {/* <Avatar icon={<UserOutlined />} onClick={showDrawer} /> */}
         <Drawer title="User Menu" placement="right" onClose={closeDrawer} visible={drawerVisible}>
           {/* Opciones dentro del Drawer */}
           {/*<p><Link to="/profile">Perfil</Link></p>*/}

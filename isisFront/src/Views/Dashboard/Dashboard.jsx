@@ -29,7 +29,7 @@ const MainLayout = () => {
 
         {/* Columna Central con la Cámara y el Resultado de Inspección */}
         <Col xs={24} sm={12} md={12} lg={14} className="camera-col">
-          <h2 className="section-title">Inspección</h2>
+          <h2 className="section-title">Inspectión</h2>
           <CameraFeed2/>
           <CameraFeed />
           {/*<InspectionResult />*/}

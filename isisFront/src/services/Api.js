@@ -1,5 +1,5 @@
 import axios from 'axios';
-// http://localhost:3000/api 
+// http://localhost:3000/api http://14.10.2.192:8068/api http://http://192.168.10.141:8068/api http://localhost:8068/api
 const BASE_URL = 'http://14.10.2.192:8068/api'; // Asegúrate de que esta URL corresponda a tu backend
 
 // Función para obtener los datos del inventario

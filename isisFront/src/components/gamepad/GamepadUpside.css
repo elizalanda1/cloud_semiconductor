@@ -1,0 +1,37 @@
+.gamepad-upside {
+    position: relative;
+    text-align: center;
+    margin: 20px 0;
+  }
+  
+  .gamepad-image {
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+  }
+  
+  .labels .label {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+  }
+  
+  .b6 {
+    top: 30%;
+    left: 15%;
+  }
+  
+  .b7 {
+    top: 30%;
+    right: 15%;
+  }
+  
+  .b5 {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  

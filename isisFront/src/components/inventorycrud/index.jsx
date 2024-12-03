@@ -56,7 +56,7 @@ const InventoryCrud = () => {
   return (
     <div className="inventory-container">
       <Button type="primary" onClick={loadInventoryData} className="update-button">
-        Actualizar Inventario
+        Update Inventory
       </Button>
       {inventoryData.map((item) => (
         <Card key={item._id} className="inventory-card">
@@ -73,7 +73,7 @@ const InventoryCrud = () => {
                   onClick={() => handleSaveClick(item._id)}
                   className="save-button"
                 >
-                  Guardar
+                  Save
                 </Button>
               </>
             ) : (
@@ -84,7 +84,7 @@ const InventoryCrud = () => {
                   onClick={() => handleEditClick(item._id, item.name)}
                   className="edit-button"
                 >
-                  Editar
+                  Edit
                 </Button>
               </>
             )}
@@ -94,13 +94,13 @@ const InventoryCrud = () => {
               onClick={() => handleDeleteClick(item._id)}
               className="delete-button"
             >
-              Borrar
+              Drop
             </Button>
           </div>
-          <p>Cantidad Total: {item.totalQuantity}</p>
-          <p>Buenos: {item.goodQuantity}</p>
-          <p>Defectuosos: {item.defectiveQuantity}</p>
-          <p>Última Actualización: {new Date(item.lastUpdated).toLocaleString()}</p>
+          <p>Total Amount: {item.totalQuantity}</p>
+          <p>Good: {item.goodQuantity}</p>
+          <p>Defective: {item.defectiveQuantity}</p>
+          <p>last Update: {new Date(item.lastUpdated).toLocaleString()}</p>
         </Card>
       ))}
     </div>

@@ -10,3 +10,4 @@ cors
 flask_cors
 opencv-python
 inputs
+hid

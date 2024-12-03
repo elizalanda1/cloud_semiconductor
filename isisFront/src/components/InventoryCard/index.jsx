@@ -24,20 +24,20 @@ const InventoryCard = () => {
   }, []);
 
   if (loading) {
-    return <p>Cargando inventario...</p>;
+    return <p>Loading Inventory...</p>;
   }
 
   return (
     <div className="inventory-container">
       <Button type="primary" onClick={loadInventoryData} className="update-button">
-        Actualizar Inventario
+        Update Inventory
       </Button>
       {inventoryData.map((item) => (
         <Card key={item._id} title={`Circuito: ${item.name}`} className="inventory-card">
-          <p>Cantidad Total: {item.totalQuantity}</p>
-          <p>Buenos: {item.goodQuantity}</p>
-          <p>Defectuosos: {item.defectiveQuantity}</p>
-          <p>Última Actualización: {new Date(item.lastUpdated).toLocaleString()}</p>
+          <p>Total Amount: {item.totalQuantity}</p>
+          <p>Good: {item.goodQuantity}</p>
+          <p>Defective: {item.defectiveQuantity}</p>
+          <p>Last Update: {new Date(item.lastUpdated).toLocaleString()}</p>
         </Card>
       ))}
     </div>

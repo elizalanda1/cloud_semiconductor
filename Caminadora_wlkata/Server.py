@@ -12,7 +12,7 @@ from flask_cors import CORS
 import os
 import subprocess
 import numpy as np
-import hid
+# import hid
 
 
 app = Flask(__name__)
@@ -22,7 +22,7 @@ CORS(app)
 
 serial_port = None
 mirobot = None
-camera1 = cv2.VideoCapture(0)  # Inicializar la cámara
+camera1 = cv2.VideoCapture(2)  # Inicializar la cámara
 camera2 = cv2.VideoCapture(1)  # Inicializar la cámara
 
 # Evento de parada de emergencia
@@ -50,8 +50,8 @@ last_status = {
 def iniciar_conexion():
     global serial_port, mirobot
     try:
-        # Configura el puerto serial y el objeto mirobot
-        serial_port = serial.Serial('/dev/tty.usbserial-1420', 115200, timeout=1)
+        # Configura el puerto serial y el objeto mirobot /dev/tty.usbserial-1420
+        serial_port = serial.Serial('COM3', 115200, timeout=1)
         mirobot = wlkatapython.Wlkata_UART()
         mirobot.init(serial_port, -1)
         print("Conexión establecida con el brazo robótico.")

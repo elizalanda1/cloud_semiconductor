@@ -1,7 +1,7 @@
 // src/services/slackService.js
 
 import axios from 'axios';
-
+// 14.10.2.192:8067
 const BASE_URL = 'http://14.10.2.192:8067'; // Cambiado para usar el proxy en Vercel https://isis-back.vercel.app/proxy
 
 

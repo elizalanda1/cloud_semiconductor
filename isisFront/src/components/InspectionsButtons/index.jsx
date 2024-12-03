@@ -110,7 +110,7 @@ const InspectionButtons = () => {
         // Modo Manual: Mostrar input, botones "Good", "Defective" y "Modo Automático"
         <>
           <Input
-            placeholder="Ingresa el nombre del circuito"
+            placeholder="Enter the name of the circuit"
             value={circuitName}
             onChange={handleInputChange}
             className="circuit-name-input"
@@ -138,7 +138,7 @@ const InspectionButtons = () => {
             onClick={handleAutomaticModeClick}
             disabled={isButtonsDisabled} // Deshabilita el botón si todos están deshabilitados
           >
-            Modo Automático
+            Automatic Mode
           </Button>
         </>
       )}
