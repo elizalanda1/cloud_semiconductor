@@ -47,9 +47,16 @@ export const getVideoFeedUrl2 = () => {
 
 
 // Servicio para mover el brazo robótico
-export const moveArm = async (angles) => {
+export const moveArm = async (angles, pump = 0, runWalkingPad = false) => {
   try {
-    const response = await axios.post(`${BASE_URL}/move_arm`, angles, {
+    // Agregar parámetros adicionales al cuerpo de la solicitud
+    const payload = {
+      ...angles,
+      pump,           // Control del pump: 1 para activar, 0 para desactivar
+      run_walkingpad: runWalkingPad, // true para ejecutar la caminadora, false para ignorarla
+    };
+
+    const response = await axios.post(`${BASE_URL}/move_arm`, payload, {
       headers: { 'Content-Type': 'application/json' },
     });
     return response.data;
@@ -58,6 +65,7 @@ export const moveArm = async (angles) => {
     throw error;
   }
 };
+
 
 // Servicio para iniciar la clasificación continua
 export const startContinuousClassification = async () => {

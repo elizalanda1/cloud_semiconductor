@@ -334,9 +334,58 @@ async def emergency_stop():
     mirobot.pump(0)
     return jsonify({"status": "Paro de emergencia activado: caminadora y brazo detenidos"}), 200
 
-# Async function to move the robotic arm to specified angles
 @app.route("/move_arm", methods=['POST'])
 async def move_arm():
+    data = request.get_json()
+    angles = {
+        "J1": data.get("J1", 0),
+        "J2": data.get("J2", 0),
+        "J3": data.get("J3", 0),
+        "J4": data.get("J4", 0),
+        "J5": data.get("J5", 0),
+        "J6": data.get("J6", 0)
+    }
+
+    pump_status = data.get("pump", 0)  # 1 for activate, 0 for deactivate
+    run_walkingpad = data.get("run_walkingpad", False)  # True to activate, False to ignore
+
+    try:
+        # Check for emergency stop
+        if emergency_stop_event.is_set():
+            print("Paro de emergencia activado. Deteniendo el movimiento.")
+            return jsonify({"status": "Movimiento interrumpido por paro de emergencia"}), 500
+
+        # Command the robotic arm to move to the specified angles
+        mirobot.writeangle(0, angles["J1"], angles["J2"], angles["J3"], angles["J4"], angles["J5"], angles["J6"])
+        await asyncio.sleep(0.5)
+
+        # Control the pump based on the pump_status value
+        if pump_status == 1:
+            mirobot.pump(1)  # Activate pump
+            print("Pump activado.")
+        elif pump_status == 0:
+            mirobot.pump(0)  # Deactivate pump
+            print("Pump desactivado.")
+
+        # Run the walking pad if specified
+        if run_walkingpad:
+            print("Iniciando caminadora...")
+            walking_pad_task = asyncio.create_task(run_walking_pad())  # Run asynchronously
+            await walking_pad_task
+            print("Caminadora ejecutada y completada.")
+
+        return jsonify({
+            "status": "Movimiento completado, pump actualizado" + (" y caminadora ejecutada" if run_walkingpad else "")
+        }), 200
+
+    except Exception as e:
+        print(f"Error en el movimiento del brazo robótico o caminadora: {str(e)}")
+        return jsonify({"status": "Error en el sistema", "error": str(e)}), 500
+
+
+# Async function to move the robotic arm to specified angles
+@app.route("/move_arm_previous", methods=['POST'])
+async def move_arm_previous():
     data = request.get_json()
     angles = {
         "J1": data.get("J1", 0),
