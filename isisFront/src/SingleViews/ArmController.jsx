@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Row, Col, Card, Statistic, List, Avatar, Typography, Space, Tooltip, Divider, Progress } from 'antd';
+import { Layout, Row, Col, Card, Statistic, List, Avatar, Typography, Space, Tooltip, Divider, Progress, Input } from 'antd';
 import { 
   FireOutlined, 
   ThunderboltOutlined, 
@@ -25,20 +25,21 @@ import './RobotArmControlView.css';
 
 const { Header, Content } = Layout;
 const { Title, Text } = Typography;
+const { Search } = Input;
 
 const RobotArmControlView = () => {
   // Iniciar en modo 'buttons'
   const [controlMode, setControlMode] = useState('buttons');
 
-  const [commandHistory, setCommandHistory] = useState([
-   
-  ]);
-
+  const [commandHistory, setCommandHistory] = useState([]);
   const [angles, setAngles] = useState({J1:0, J2:0, J3:0, J4:0, J5:0, J6:0});
 
   // Nuevo estado para latencia y gamepad
   const [latency, setLatency] = useState(120);
   const [isGamepadConnected, setIsGamepadConnected] = useState(false);
+
+  // Estado para el término de búsqueda
+  const [searchTerm, setSearchTerm] = useState('');
 
   // Actualizar latencia cada 2 segundos con un valor entre 100 y 140ms
   useEffect(() => {
@@ -52,14 +53,12 @@ const RobotArmControlView = () => {
   const sensorData = [
     { title: 'Temp', value: '36.5°C', icon: <FireOutlined style={{ color: 'red' }} />, description: "Temperatura actual de la base del robot." },
     { title: 'Batería', value: '85%', icon: <ThunderboltOutlined style={{ color: 'green' }} />, description: "Nivel de batería restante." },
-    // La latencia ahora toma el valor del estado `latency`
     { title: 'Latencia', value: `${latency}ms`, icon: <DashboardOutlined style={{ color: 'blue' }} />, description: "Latencia promedio de la comunicación." }
   ];
 
   const extraData = [
     { title: 'Conexión', value: 'WiFi', icon: <WifiOutlined />, description: "Tipo de conexión activa." },
     { title: 'Señal', value: 'Fuerte', icon: <BarChartOutlined style={{ color: 'green' }} />, description: "Intensidad de la señal." },
-    // Estado del gamepad: si está conectado o no
     { 
       title: 'Gamepad', 
       value: isGamepadConnected ? 'Conectado' : 'Desconectado', 
@@ -181,7 +180,12 @@ const RobotArmControlView = () => {
     </Card>
   );
 
-  const limitedCommands = commandHistory.slice(-7);
+  // Filtrado de comandos
+  const filteredCommands = commandHistory.filter(item => 
+    item.command.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const limitedCommands = filteredCommands.slice(-7);
 
   // Nueva función para actualizar estado del gamepad desde RobotArmControl
   const handleGamepadStatusChange = (connected) => {
@@ -277,7 +281,13 @@ const RobotArmControlView = () => {
             </Card>
 
             <Card title="Historial de Comandos" style={{ overflow: 'auto', maxHeight: '300px', marginBottom: '8px' }}>
-              {/* Mostrar solo los últimos 7 comandos */}
+              <Search
+                placeholder="Buscar comando"
+                onSearch={(value) => setSearchTerm(value)}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{ marginBottom: '8px' }}
+              />
+              {/* Mostrar solo los últimos 7 comandos filtrados */}
               <List
                 itemLayout="horizontal"
                 dataSource={limitedCommands}
@@ -291,7 +301,7 @@ const RobotArmControlView = () => {
                   </List.Item>
                 )}
               />
-              </Card>
+            </Card>
 
             <JointAnglesCard />
           </Col>
@@ -302,5 +312,3 @@ const RobotArmControlView = () => {
 };
 
 export default RobotArmControlView;
-
-
