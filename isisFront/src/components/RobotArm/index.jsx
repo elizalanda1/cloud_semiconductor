@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Slider, Row, Col } from 'antd';
-import { SwapOutlined } from '@ant-design/icons';
-import { moveArm } from '../../services/Flask'; // Importa la función para enviar datos al backend
+import { Button, Slider, Row, Col, Divider } from 'antd';
+import { SwapOutlined, ToolOutlined, StopOutlined, UpOutlined, DownOutlined } from '@ant-design/icons';
+import { moveArm } from '../../services/Flask'; 
 import './index.css';
 
-const RobotArmControl = ({ setControlMode, controlMode }) => {
+const RobotArmControl = ({ setControlMode, controlMode, onCommandSend, onAnglesChange, onGamepadStatusChange }) => {
+  // Iniciar en modo "buttons"
   const [angles, setAngles] = useState({
     J1: 0,
     J2: 0,
@@ -14,75 +15,73 @@ const RobotArmControl = ({ setControlMode, controlMode }) => {
     J6: 0,
   });
 
-  const [selectedJoint, setSelectedJoint] = useState(1); // Articulación seleccionada
-  const [isGamepadConnected, setIsGamepadConnected] = useState(false); // Estado del gamepad
-  const [isPumpActive, setIsPumpActive] = useState(false); // Controla si el grip está activado
-  const [isWalkingPadActive, setIsWalkingPadActive] = useState(false); // Controla si la caminadora está activa
+  const [selectedJoint, setSelectedJoint] = useState(1); 
+  const [isGamepadConnected, setIsGamepadConnected] = useState(false);
+  const [isPumpActive, setIsPumpActive] = useState(false);
+  const [isWalkingPadActive] = useState(false); // ya no usamos caminadora
 
-  // Actualizar el ángulo y mover el brazo
+  // Notificar cambios de ángulos
+  const notifyAnglesChange = (updatedAngles) => {
+    setAngles(updatedAngles);
+    if (onAnglesChange) {
+      onAnglesChange(updatedAngles);
+    }
+  };
+
   const updateAngleAndMove = async (joint, newAngle) => {
     const updatedAngles = {
       ...angles,
       [joint]: newAngle,
     };
-    setAngles(updatedAngles);
+    notifyAnglesChange(updatedAngles);
 
     try {
-      await moveArm(updatedAngles, isPumpActive ? 1 : 0); // Incluir el estado actual del pump
-      console.log(`Moviendo: ${joint} a ${newAngle}, pump: ${isPumpActive ? 'activado' : 'desactivado'}`);
+      await moveArm(updatedAngles, isPumpActive ? 1 : 0);
+      if (onCommandSend) {
+        onCommandSend(`Moviendo: ${joint} a ${newAngle}°, grip: ${isPumpActive ? 'activado' : 'desactivado'}`);
+      }
     } catch (error) {
       console.error('Error al mover el brazo:', error);
     }
   };
 
-  // Activar/desactivar el grip
   const togglePump = async () => {
     setIsPumpActive((prev) => !prev);
 
     try {
-      await moveArm(angles, !isPumpActive ? 1 : 0); // Llama al backend para activar/desactivar el grip
-      console.log(`Grip ${!isPumpActive ? 'activado' : 'desactivado'}`);
+      await moveArm(angles, !isPumpActive ? 1 : 0);
+      if (onCommandSend) {
+        onCommandSend(`Grip ${!isPumpActive ? 'activado' : 'desactivado'}`);
+      }
     } catch (error) {
       console.error('Error al controlar el grip:', error);
     }
   };
 
-  // Activar la caminadora
-  const runWalkingPad = async () => {
-    setIsWalkingPadActive(true);
-    console.log('Caminadora activada.');
-
-    setTimeout(() => {
-      setIsWalkingPadActive(false);
-      console.log('Caminadora desactivada.');
-    }, 7000);
-
-    try {
-      await moveArm(angles, isPumpActive ? 1 : 0, true); // Incluir estado del pump y caminadora
-    } catch (error) {
-      console.error('Error al activar la caminadora:', error);
-    }
-  };
-
-  // Manejar el cambio de modo
   const handleModeChange = () => {
     const nextMode = controlMode === 'sliders' ? 'buttons' : controlMode === 'buttons' ? 'gamepad' : 'sliders';
     setControlMode(nextMode);
+    if (onCommandSend) {
+      onCommandSend(`Cambiando a modo: ${nextMode}`);
+    }
   };
 
-  // Manejo del gamepad
   useEffect(() => {
     const handleGamepadInput = () => {
       const gamepads = navigator.getGamepads();
-      const gamepad = gamepads[0]; // Usar el primer gamepad conectado
+      const gamepad = gamepads[0];
+
+      if (gamepad && !isGamepadConnected) {
+        setIsGamepadConnected(true);
+        if (onGamepadStatusChange) onGamepadStatusChange(true);
+      } else if (!gamepad && isGamepadConnected) {
+        setIsGamepadConnected(false);
+        if (onGamepadStatusChange) onGamepadStatusChange(false);
+      }
 
       if (gamepad) {
-        setIsGamepadConnected(true);
-
-        // Manejo de botones del gamepad
         const { buttons } = gamepad;
 
-        // Cambiar articulación seleccionada
         if (buttons[6].pressed) {
           setSelectedJoint((prev) => Math.max(1, prev - 1));
         }
@@ -90,7 +89,6 @@ const RobotArmControl = ({ setControlMode, controlMode }) => {
           setSelectedJoint((prev) => Math.min(6, prev + 1));
         }
 
-        // Cambiar ángulos de la articulación seleccionada
         if (buttons[3].pressed) {
           updateAngleAndMove(`J${selectedJoint}`, angles[`J${selectedJoint}`] - 5);
         }
@@ -98,109 +96,93 @@ const RobotArmControl = ({ setControlMode, controlMode }) => {
           updateAngleAndMove(`J${selectedJoint}`, angles[`J${selectedJoint}`] + 5);
         }
 
-        // Control del grip
+        // Botones de grip
         if (buttons[0].pressed && !isPumpActive) {
           togglePump();
         }
         if (buttons[2].pressed && isPumpActive) {
           togglePump();
         }
-
-        // Activar la caminadora
-        if (buttons[5].pressed && !isWalkingPadActive) {
-          runWalkingPad();
-        }
-      } else {
-        setIsGamepadConnected(false); // No hay gamepad conectado
       }
     };
 
     const interval = setInterval(handleGamepadInput, 100);
-
     return () => clearInterval(interval);
-  }, [angles, selectedJoint, isPumpActive, isWalkingPadActive]);
+  }, [angles, selectedJoint, isPumpActive, isGamepadConnected, onGamepadStatusChange]);
 
   return (
     <div className="robot-arm-control">
       <h3>── MOTION CONTROL ──</h3>
 
-      {/* Indicador de articulación seleccionada en modo gamepad */}
       {controlMode === 'gamepad' && (
         <div>
           {isGamepadConnected ? (
             <p>Controlling axis: {selectedJoint}</p>
           ) : (
-            <p style={{ color: 'red' }}>Gamepad not detected. Plug it in to use this mode.</p>
+            <p style={{ color: 'red' }}>Gamepad not detected. Connect it to use this mode.</p>
           )}
         </div>
       )}
 
-      {/* Controles de sliders */}
       {controlMode === 'sliders' && (
         <>
           {[1, 2, 3, 4, 5, 6].map((joint) => (
-            <Row className="control-row" key={joint} gutter={[16, 16]} align="middle">
-              <Col span={4}>
-                <span>J{joint}:</span>
-              </Col>
-              <Col span={16}>
-                <Slider
-                  min={-180}
-                  max={180}
-                  value={angles[`J${joint}`]}
-                  onChange={(value) => setAngles((prev) => ({ ...prev, [`J${joint}`]: value }))}
-                  onAfterChange={(value) => updateAngleAndMove(`J${joint}`, value)}
-                  tooltip={{ formatter: (value) => `${value}°` }}
-                />
-              </Col>
-              <Col span={4}>
-                <span>{angles[`J${joint}`]}°</span>
-              </Col>
-            </Row>
+            <div className="control-row" key={joint} style={{flexDirection:'column', alignItems:'flex-start'}}>
+              <span style={{ marginBottom:'4px', fontSize:'1rem', fontWeight:'bold', color:'#555' }}>J{joint}: {angles[`J${joint}`]}°</span>
+              <Slider
+                min={-180}
+                max={180}
+                value={angles[`J${joint}`]}
+                onChange={(value) => notifyAnglesChange({ ...angles, [`J${joint}`]: value })}
+                onAfterChange={(value) => updateAngleAndMove(`J${joint}`, value)}
+                tooltip={{ formatter: (value) => `${value}°` }}
+                style={{ width:'100%' }}
+              />
+            </div>
           ))}
         </>
       )}
 
-      {/* Controles con botones */}
       {controlMode === 'buttons' && (
         <>
-          {[1, 2, 3, 4, 5, 6].map((joint) => (
-            <Row className="control-row" key={joint} gutter={[16, 16]} align="middle">
-              <Col span={4}>
-                <span>J{joint}:</span>
-              </Col>
-              <Col span={20}>
-                <Button onClick={() => updateAngleAndMove(`J${joint}`, angles[`J${joint}`] - 5)}>
-                  J{joint} -
+          {[1, 2, 3, 4, 5, 6].map((joint, index) => (
+            <React.Fragment key={joint}>
+              <div className="control-row" style={{ justifyContent: 'flex-start', flexWrap: 'wrap', alignItems:'center' }}>
+                <span style={{ marginRight: '8px', fontWeight: 'bold' }}>J{joint}:</span>
+                <Button 
+                  onClick={() => updateAngleAndMove(`J${joint}`, angles[`J${joint}`] - 5)} 
+                  style={{ marginRight:'8px' }} 
+                  icon={<DownOutlined />}
+                >
+                  -5°
                 </Button>
-                <Button onClick={() => updateAngleAndMove(`J${joint}`, angles[`J${joint}`] + 5)}>
-                  J{joint} +
+                <Button 
+                  onClick={() => updateAngleAndMove(`J${joint}`, angles[`J${joint}`] + 5)} 
+                  icon={<UpOutlined />}
+                >
+                  +5°
                 </Button>
-              </Col>
-            </Row>
+                <span style={{ marginLeft:'auto', fontWeight:'bold', color:'#333' }}>
+                  {angles[`J${joint}`]}°
+                </span>
+              </div>
+              {index < 5 && <Divider style={{ margin:'8px 0' }} />}
+            </React.Fragment>
           ))}
         </>
       )}
 
-      {/* Botones adicionales */}
       <div className="additional-controls" style={{ marginTop: '1rem' }}>
         <Button
           type={isPumpActive ? 'danger' : 'primary'}
           onClick={togglePump}
           style={{ marginRight: '1rem' }}
+          icon={isPumpActive ? <StopOutlined /> : <ToolOutlined />}
         >
-          {isPumpActive ? 'Deactivate Grip' : 'Activate Grip'}
-        </Button>
-        <Button
-          type="default"
-          onClick={runWalkingPad}
-          disabled={isWalkingPadActive}
-        >
-          {isWalkingPadActive ? 'conveyor belt running' : 'Start Conveyor Band'}
+          {isPumpActive ? 'Stop Grip' : 'Start Grip'}
         </Button>
       </div>
 
-      {/* Botón para cambiar entre modos */}
       <Button
         type="default"
         icon={<SwapOutlined />}
