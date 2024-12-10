@@ -140,123 +140,128 @@ const RobotArmControlView = () => {
   };
 
   return (
-          <Layout style={{ minHeight: '100vh', margin:0, padding:0 }}>
-            <Header style={{ background: '#fff', padding: '0 16px', margin:0 }}>
-              <Nav />
-            </Header>
-
-            <Content style={{ height: 'calc(100vh - 64px)', margin:0, padding:0 }}>
-              {/* Primera fila: Cámaras */}
-              <Row gutter={[10,0]} style={{ margin:0, padding:0 }}>
-                <Col span={12} style={{ margin:0, padding:0 }}>
-                  <Card 
-                    title="Vista Lateral: Cámara 1" 
-                    bodyStyle={{ padding:5 }} 
-                    style={{ margin:0, padding:0 }}
-                  >
-                    <CameraFeed2 style={{ width: '100%' }} />
-                  </Card>
+    <Layout style={{ minHeight: '100vh', margin:0, padding:0 }}>
+    <Header style={{ background: '#fff', padding: '0 16px', margin:0 }}>
+      <Nav />
+    </Header>
+  
+    <Content style={{ height: 'calc(100vh - 64px)', margin:0, padding:0 }}>
+      {/* Primera fila: Cámaras */}
+      <Row gutter={[10,0]} style={{ margin:0, padding:0 }}>
+        {/* En pantallas chicas (xs) ocuparán todo el ancho (24), en pantallas medianas (md) se dividen a la mitad (12/12) */}
+        <Col xs={24} md={12} style={{ margin:0, padding:0 }}>
+          <Card 
+            title="Vista Lateral: Cámara 1" 
+            bodyStyle={{ padding:5 }} 
+            style={{ margin:0, padding:0 }}
+          >
+            <CameraFeed2 style={{ width: '100%' }} />
+          </Card>
+        </Col>
+        <Col xs={24} md={12} style={{ margin:0, padding:0 }}>
+          <Card 
+            title="Vista Superior: Cámara 2" 
+            bodyStyle={{ padding:5 }} 
+            style={{ margin:0, padding:0 }}
+          >
+            <CameraFeed style={{ width: '100%' }} />
+          </Card>
+        </Col>
+      </Row>
+  
+      {/* Segunda y tercera fila: Left (Sensors + Diagram/Sliders) y Right (Historial) */}
+      <Row gutter={[10,0]} style={{ margin:10, padding:10 }}>
+        {/* En móvil (xs): ancho completo. En escritorio (md): 16/24 + 8/24 */}
+        <Col xs={24} md={16} style={{ margin:0, padding:10 }}>
+          {/* Sensors & Status */}
+          <Card 
+            title="Sensors & Status" 
+            bodyStyle={{ padding:10 }} 
+            style={{ margin:10, padding:10 }}
+          >
+            <Row gutter={[10,10]} justify="space-around" align="middle" style={{ margin:10, padding:10 }}>
+              {sensorData.concat(extraData).map((data) => (
+                <Col key={data.title} xs={12} sm={6} md={3} style={{ textAlign: 'center', margin:0, padding:0 }}>
+                  <Tooltip title={data.description}>
+                    <Statistic title={data.title} value={data.value} prefix={data.icon} />
+                  </Tooltip>
                 </Col>
-                <Col span={12} style={{ margin:0, padding:0 }}>
-                  <Card 
-                    title="Vista Superior: Cámara 2" 
-                    bodyStyle={{ padding:5 }} 
-                    style={{ margin:0, padding:0 }}
-                  >
-                    <CameraFeed style={{ width: '100%' }} />
-                  </Card>
-                </Col>
-              </Row>
-
-              {/* Segunda y tercera fila: Left (Sensors + Diagram/Sliders) y Right (Historial) */}
-              <Row gutter={[10,0]} style={{ margin:10, padding:10 }}>
-                <Col span={16} style={{ margin:0, padding:10 }}>
-                  {/* Sensors & Status */}
-                  <Card 
-                    title="Sensors & Status" 
-                    bodyStyle={{ padding:10 }} 
-                    style={{ margin:10, padding:10 }}
-                  >
-                    <Row gutter={[10,10]} justify="space-around" align="middle" style={{ margin:10, padding:10 }}>
-                      {sensorData.concat(extraData).map((data) => (
-                        <Col key={data.title} span={3} style={{ textAlign: 'center', margin:0, padding:0 }}>
-                          <Tooltip title={data.description}>
-                            <Statistic title={data.title} value={data.value} prefix={data.icon} />
-                          </Tooltip>
-                        </Col>
-                      ))}
-                    </Row>
-                  </Card>
-
-                  {/* Diagrama del Robot/Gamepad y Sliders/Buttons */}
-                  <Row gutter={[10,0]} style={{ margin:10, padding:10 }}>
-    <Col span={12} style={{ margin:0, padding:0 }}>
-      <Card 
-        title="Diagrama del Robot/Gamepad" 
-        bodyStyle={{ padding:10 }} 
-        style={{ margin:0, padding:0 }}
-      >
-        {controlMode === 'gamepad' && (
-          <div style={{ textAlign: 'center', margin:0, padding:0 }}>
-            <GamepadFront style={{ width: '80%', marginBottom: '8px' }} />
-            <GamepadUpside style={{ width: '80%' }} />
-          </div>
-        )}
-        {controlMode !== 'gamepad' && <RobotStateVisual angles={angles} />}
-      </Card>
-    </Col>
-    <Col span={12} style={{ margin:0, padding:0 }}>
-      <Card 
-        title="Sliders/Buttons" 
-        bodyStyle={{ padding:10 }} 
-        style={{ margin:0, padding:0 }}
-      >
-        <RobotArmControl
-          setControlMode={setControlMode}
-          controlMode={controlMode}
-          onCommandSend={handleCommandSend}
-          onAnglesChange={handleAnglesChange}
-          onGamepadStatusChange={handleGamepadStatusChange}
-          className="custom-sliders"
-        />
-      </Card>
-    </Col>
-  </Row>
-                </Col>
-
-                {/* Historial de Comandos */}
-                <Col span={8} style={{ margin:0, padding:0 }}>
-                  <Card 
-                    title="Historial de Comandos" 
-                    bodyStyle={{ padding:0 }} 
-                    style={{ margin:0, padding:0, height:'100%' }}
-                  >
-                    <div style={{ padding:'8px' }}>
-                      <Search
-                        placeholder="Buscar comando"
-                        onSearch={(value) => setSearchTerm(value)}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        style={{ marginBottom: '8px' }}
-                      />
-                      <List
-                        itemLayout="horizontal"
-                        dataSource={limitedCommands}
-                        renderItem={(item) => (
-                          <List.Item>
-                            <List.Item.Meta
-                              avatar={<Avatar icon={<FundOutlined />} style={{ backgroundColor: '#1890ff' }} />}
-                              title={<span style={{ fontSize: '14px' }}>{item.command}</span>}
-                              description={<span style={{ fontSize: '12px' }}>{item.timestamp}</span>}
-                            />
-                          </List.Item>
-                        )}
-                      />
-                    </div>
-                  </Card>
-                </Col>
-              </Row>
-            </Content>
-          </Layout>
+              ))}
+            </Row>
+          </Card>
+  
+          {/* Diagrama del Robot/Gamepad y Sliders/Buttons */}
+          {/* En móvil (xs) se apilan, en desktop (md) van lado a lado (12/12) */}
+          <Row gutter={[10,0]} style={{ margin:10, padding:10 }}>
+            <Col xs={24} md={12} style={{ margin:0, padding:0 }}>
+              <Card 
+                title="Diagrama del Robot/Gamepad" 
+                bodyStyle={{ padding:10 }} 
+                style={{ margin:0, padding:0 }}
+              >
+                {controlMode === 'gamepad' && (
+                  <div style={{ textAlign: 'center', margin:0, padding:0 }}>
+                    <GamepadFront style={{ width: '80%', marginBottom: '8px' }} />
+                    <GamepadUpside style={{ width: '80%' }} />
+                  </div>
+                )}
+                {controlMode !== 'gamepad' && <RobotStateVisual angles={angles} />}
+              </Card>
+            </Col>
+            <Col xs={24} md={12} style={{ margin:0, padding:0 }}>
+              <Card 
+                title="Sliders/Buttons" 
+                bodyStyle={{ padding:10 }} 
+                style={{ margin:0, padding:0 }}
+              >
+                <RobotArmControl
+                  setControlMode={setControlMode}
+                  controlMode={controlMode}
+                  onCommandSend={handleCommandSend}
+                  onAnglesChange={handleAnglesChange}
+                  onGamepadStatusChange={handleGamepadStatusChange}
+                  className="custom-sliders"
+                />
+              </Card>
+            </Col>
+          </Row>
+        </Col>
+  
+        {/* Historial de Comandos */}
+        {/* En móvil (xs): ancho completo (24), se apila debajo. En desktop (md): ocupa 8/24 a la derecha */}
+        <Col xs={24} md={8} style={{ margin:0, padding:0 }}>
+          <Card 
+            title="Historial de Comandos" 
+            bodyStyle={{ padding:0 }} 
+            style={{ margin:0, padding:0, height:'100%' }}
+          >
+            <div style={{ padding:'8px' }}>
+              <Search
+                placeholder="Buscar comando"
+                onSearch={(value) => setSearchTerm(value)}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{ marginBottom: '8px' }}
+              />
+              <List
+                itemLayout="horizontal"
+                dataSource={limitedCommands}
+                renderItem={(item) => (
+                  <List.Item>
+                    <List.Item.Meta
+                      avatar={<Avatar icon={<FundOutlined />} style={{ backgroundColor: '#1890ff' }} />}
+                      title={<span style={{ fontSize: '14px' }}>{item.command}</span>}
+                      description={<span style={{ fontSize: '12px' }}>{item.timestamp}</span>}
+                    />
+                  </List.Item>
+                )}
+              />
+            </div>
+          </Card>
+        </Col>
+      </Row>
+    </Content>
+  </Layout>
+  
   );
 };
 
