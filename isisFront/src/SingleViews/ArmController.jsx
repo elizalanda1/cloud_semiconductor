@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Row, Col, Card, Statistic, List, Avatar, Typography, Space, Tooltip, Divider, Progress, Input } from 'antd';
+import { Layout, Row, Col, Card, Statistic, List, Avatar, Typography, Tooltip, Progress, Input } from 'antd';
 import { 
   FireOutlined, 
   ThunderboltOutlined, 
   DashboardOutlined, 
-  SmileOutlined, 
-  FundOutlined,
   AndroidOutlined,
   SlidersOutlined,
   ControlOutlined,
   WifiOutlined,
   SyncOutlined,
-  BarChartOutlined
+  BarChartOutlined,
+  FundOutlined
 } from '@ant-design/icons';
 
 import Nav from '../components/Nav';
@@ -28,23 +27,16 @@ const { Title, Text } = Typography;
 const { Search } = Input;
 
 const RobotArmControlView = () => {
-  // Iniciar en modo 'buttons'
   const [controlMode, setControlMode] = useState('buttons');
-
   const [commandHistory, setCommandHistory] = useState([]);
   const [angles, setAngles] = useState({J1:0, J2:0, J3:0, J4:0, J5:0, J6:0});
-
-  // Nuevo estado para latencia y gamepad
   const [latency, setLatency] = useState(120);
   const [isGamepadConnected, setIsGamepadConnected] = useState(false);
-
-  // Estado para el término de búsqueda
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Actualizar latencia cada 2 segundos con un valor entre 100 y 140ms
   useEffect(() => {
     const interval = setInterval(() => {
-      const newLatency = Math.floor(Math.random()*41) + 100; // entre 100 y 140
+      const newLatency = Math.floor(Math.random()*41) + 100; 
       setLatency(newLatency);
     }, 2000);
     return () => clearInterval(interval);
@@ -67,18 +59,6 @@ const RobotArmControlView = () => {
     },
     { title: 'CPU Load', value: '35%', icon: <SyncOutlined spin style={{ color: '#1890ff' }} />, description: "Carga del CPU interno del robot." },
   ];
-
-  const modeIcons = {
-    sliders: <SlidersOutlined />,
-    gamepad: <AndroidOutlined />,
-    buttons: <ControlOutlined />
-  };
-
-  const modeLabel = {
-    sliders: "Sliders",
-    gamepad: "Gamepad",
-    buttons: "Buttons"
-  };
 
   const handleCommandSend = (newCommand) => {
     const timestamp = new Date().toISOString().replace('T', ' ').split('.')[0];
@@ -114,7 +94,7 @@ const RobotArmControlView = () => {
     const gradientId = 'robotGradient';
 
     return (
-      <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+      <div style={{ textAlign: 'center', margin:0, padding:0 }}>
         <Title level={4} style={{ marginBottom: '8px' }}>Estado Visual del Robot (6 Joints)</Title>
         <svg width={width} height={height} style={{ border: '1px solid #ddd', borderRadius: '8px' }}>
           <defs>
@@ -150,164 +130,133 @@ const RobotArmControlView = () => {
     return "➡️";
   };
 
-  const JointAnglesCard = () => (
-    <Card title="Estado de las Articulaciones" style={{ overflow: 'auto', maxHeight: '500px', marginBottom: '8px' }}>
-      <List
-        itemLayout="horizontal"
-        dataSource={[1,2,3,4,5,6]}
-        renderItem={joint => {
-          const a = angles[`J${joint}`];
-          return (
-            <List.Item>
-              <List.Item.Meta
-                title={<span style={{ fontSize: '14px', fontWeight: 'bold' }}>J{joint} {angleEmoji(a)}</span>}
-                description={(
-                  <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <Text style={{ fontSize: '12px' }}>Ángulo: {a}°</Text>
-                    <Progress
-                      percent={angleToPercent(a)}
-                      showInfo={false}
-                      strokeColor="#1890ff"
-                      style={{ width: '100%' }}
-                    />
-                  </div>
-                )}
-              />
-            </List.Item>
-          );
-        }}
-      />
-    </Card>
-  );
-
-  // Filtrado de comandos
   const filteredCommands = commandHistory.filter(item => 
     item.command.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
   const limitedCommands = filteredCommands.slice(-7);
 
-  // Nueva función para actualizar estado del gamepad desde RobotArmControl
   const handleGamepadStatusChange = (connected) => {
     setIsGamepadConnected(connected);
   };
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
-      <Header style={{ background: '#fff', padding: '0 16px' }}>
-        <Nav />
-      </Header>
+          <Layout style={{ minHeight: '100vh', margin:0, padding:0 }}>
+            <Header style={{ background: '#fff', padding: '0 16px', margin:0 }}>
+              <Nav />
+            </Header>
 
-      <Content style={{ height: 'calc(100vh - 64px)', padding: '8px' }}>
-        <Row gutter={[8, 8]} style={{ height: '100%' }}>
-          {/* Columna Izquierda: Cámaras */}
-          <Col xs={24} md={8} style={{ display: 'flex', flexDirection: 'column' }}>
-            <Card title="Vista Lateral: Cámara 1" style={{ overflow: 'auto', marginBottom: '8px', maxHeight: '700px' }}>
-              <CameraFeed2 style={{ width: '100%' }} />
-            </Card>
-            <Card title="Vista Superior: Cámara 2" style={{ overflow: 'auto', maxHeight: '700px' }}>
-              <CameraFeed style={{ width: '100%' }} />
-            </Card>
-          </Col>
+            <Content style={{ height: 'calc(100vh - 64px)', margin:0, padding:0 }}>
+              {/* Primera fila: Cámaras */}
+              <Row gutter={[10,0]} style={{ margin:0, padding:0 }}>
+                <Col span={12} style={{ margin:0, padding:0 }}>
+                  <Card 
+                    title="Vista Lateral: Cámara 1" 
+                    bodyStyle={{ padding:5 }} 
+                    style={{ margin:0, padding:0 }}
+                  >
+                    <CameraFeed2 style={{ width: '100%' }} />
+                  </Card>
+                </Col>
+                <Col span={12} style={{ margin:0, padding:0 }}>
+                  <Card 
+                    title="Vista Superior: Cámara 2" 
+                    bodyStyle={{ padding:5 }} 
+                    style={{ margin:0, padding:0 }}
+                  >
+                    <CameraFeed style={{ width: '100%' }} />
+                  </Card>
+                </Col>
+              </Row>
 
-          {/* Columna Central: Motion Control */}
-          <Col xs={24} md={8} style={{ display: 'flex', flexDirection: 'column' }}>
-            <Card 
-              title="Motion Control"
-              style={{ display: 'flex', flexDirection: 'column', overflow: 'auto', maxHeight: '1190px' }}
-              extra={<span>Modo: {modeIcons[controlMode]} {modeLabel[controlMode]}</span>}
-            >
-              <div style={{ marginBottom: '8px' }}>
-                <RobotArmControl 
-                  setControlMode={setControlMode} 
-                  controlMode={controlMode}
-                  onCommandSend={handleCommandSend}
-                  onAnglesChange={handleAnglesChange} 
-                  onGamepadStatusChange={handleGamepadStatusChange} // nueva prop
-                  className="custom-sliders"
-                />
-              </div>
-              <Divider>Referencias de Control</Divider>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                {controlMode === 'gamepad' && (
-                  <div style={{ marginTop: '8px', width: '100%', maxWidth: '150px', textAlign:'center' }}>
-                    <Title level={5}>Controles Gamepad</Title>
-                    <GamepadFront style={{ width: '100%', marginBottom: '8px' }} />
-                    <GamepadUpside style={{ width: '100%' }} />
-                  </div>
-                )}
+              {/* Segunda y tercera fila: Left (Sensors + Diagram/Sliders) y Right (Historial) */}
+              <Row gutter={[10,0]} style={{ margin:10, padding:10 }}>
+                <Col span={16} style={{ margin:0, padding:10 }}>
+                  {/* Sensors & Status */}
+                  <Card 
+                    title="Sensors & Status" 
+                    bodyStyle={{ padding:10 }} 
+                    style={{ margin:10, padding:10 }}
+                  >
+                    <Row gutter={[10,10]} justify="space-around" align="middle" style={{ margin:10, padding:10 }}>
+                      {sensorData.concat(extraData).map((data) => (
+                        <Col key={data.title} span={3} style={{ textAlign: 'center', margin:0, padding:0 }}>
+                          <Tooltip title={data.description}>
+                            <Statistic title={data.title} value={data.value} prefix={data.icon} />
+                          </Tooltip>
+                        </Col>
+                      ))}
+                    </Row>
+                  </Card>
 
-                <RobotStateVisual angles={angles} />
-              </div>
-            </Card>
-          </Col>
+                  {/* Diagrama del Robot/Gamepad y Sliders/Buttons */}
+                  <Row gutter={[10,0]} style={{ margin:10, padding:10 }}>
+    <Col span={12} style={{ margin:0, padding:0 }}>
+      <Card 
+        title="Diagrama del Robot/Gamepad" 
+        bodyStyle={{ padding:10 }} 
+        style={{ margin:0, padding:0 }}
+      >
+        {controlMode === 'gamepad' && (
+          <div style={{ textAlign: 'center', margin:0, padding:0 }}>
+            <GamepadFront style={{ width: '80%', marginBottom: '8px' }} />
+            <GamepadUpside style={{ width: '80%' }} />
+          </div>
+        )}
+        {controlMode !== 'gamepad' && <RobotStateVisual angles={angles} />}
+      </Card>
+    </Col>
+    <Col span={12} style={{ margin:0, padding:0 }}>
+      <Card 
+        title="Sliders/Buttons" 
+        bodyStyle={{ padding:10 }} 
+        style={{ margin:0, padding:0 }}
+      >
+        <RobotArmControl
+          setControlMode={setControlMode}
+          controlMode={controlMode}
+          onCommandSend={handleCommandSend}
+          onAnglesChange={handleAnglesChange}
+          onGamepadStatusChange={handleGamepadStatusChange}
+          className="custom-sliders"
+        />
+      </Card>
+    </Col>
+  </Row>
+                </Col>
 
-          {/* Columna Derecha: Sensores & Status + Historial + Joints */}
-          <Col xs={24} md={8} style={{ display: 'flex', flexDirection: 'column' }}>
-            <Card title="Sensors & Status" style={{ overflow: 'auto', maxHeight: '410px', marginBottom: '8px' }}>
-              <Space direction="vertical" style={{ width: '100%' }}>
-                <Row gutter={16}>
-                  {sensorData.map((data) => (
-                    <Col key={data.title} span={8} style={{ textAlign: 'center' }}>
-                      <Tooltip title={data.description}>
-                        <Statistic title={data.title} value={data.value} prefix={data.icon} />
-                      </Tooltip>
-                    </Col>
-                  ))}
-                </Row>
-
-                <Divider dashed style={{ margin: '8px 0' }} />
-
-                <Row gutter={16}>
-                  {extraData.map((data) => (
-                    <Col key={data.title} span={8} style={{ textAlign: 'center' }}>
-                      <Tooltip title={data.description}>
-                        <Statistic title={data.title} value={data.value} prefix={data.icon} />
-                      </Tooltip>
-                    </Col>
-                  ))}
-                </Row>
-
-                <div style={{ marginTop: '8px' }}>
-                  <Title level={5} style={{ marginBottom: 0 }}>
-                    Estado del Sistema <SmileOutlined />
-                  </Title>
-                  <p style={{ marginTop: '4px', fontSize: '12px' }}>
-                    Todos los parámetros dentro de rangos operativos seguros.
-                  </p>
-                </div>
-              </Space>
-            </Card>
-
-            <Card title="Historial de Comandos" style={{ overflow: 'auto', maxHeight: '300px', marginBottom: '8px' }}>
-              <Search
-                placeholder="Buscar comando"
-                onSearch={(value) => setSearchTerm(value)}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                style={{ marginBottom: '8px' }}
-              />
-              {/* Mostrar solo los últimos 7 comandos filtrados */}
-              <List
-                itemLayout="horizontal"
-                dataSource={limitedCommands}
-                renderItem={item => (
-                  <List.Item>
-                    <List.Item.Meta
-                      avatar={<Avatar icon={<FundOutlined />} style={{ backgroundColor: '#1890ff' }}/>}
-                      title={<span style={{ fontSize: '14px' }}>{item.command}</span>}
-                      description={<span style={{ fontSize: '12px' }}>{item.timestamp}</span>}
-                    />
-                  </List.Item>
-                )}
-              />
-            </Card>
-
-            <JointAnglesCard />
-          </Col>
-        </Row>
-      </Content>
-    </Layout>
+                {/* Historial de Comandos */}
+                <Col span={8} style={{ margin:0, padding:0 }}>
+                  <Card 
+                    title="Historial de Comandos" 
+                    bodyStyle={{ padding:0 }} 
+                    style={{ margin:0, padding:0, height:'100%' }}
+                  >
+                    <div style={{ padding:'8px' }}>
+                      <Search
+                        placeholder="Buscar comando"
+                        onSearch={(value) => setSearchTerm(value)}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        style={{ marginBottom: '8px' }}
+                      />
+                      <List
+                        itemLayout="horizontal"
+                        dataSource={limitedCommands}
+                        renderItem={(item) => (
+                          <List.Item>
+                            <List.Item.Meta
+                              avatar={<Avatar icon={<FundOutlined />} style={{ backgroundColor: '#1890ff' }} />}
+                              title={<span style={{ fontSize: '14px' }}>{item.command}</span>}
+                              description={<span style={{ fontSize: '12px' }}>{item.timestamp}</span>}
+                            />
+                          </List.Item>
+                        )}
+                      />
+                    </div>
+                  </Card>
+                </Col>
+              </Row>
+            </Content>
+          </Layout>
   );
 };
 
