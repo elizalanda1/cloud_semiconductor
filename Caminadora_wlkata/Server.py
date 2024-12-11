@@ -13,6 +13,9 @@ import os
 import subprocess
 import numpy as np
 # import hid
+import traceback
+import sys
+import io
 
 
 app = Flask(__name__)
@@ -567,6 +570,45 @@ def video_feed():
 def video_feed2():
     return Response(generate_frames2(),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/execute_arm_script', methods=['POST'])
+async def execute_arm_script():
+    """
+    Endpoint para ejecutar scripts de Python personalizados para el brazo robótico.
+    """
+    data = await request.get_json()
+    script = data.get('script', '')
+
+    if not script:
+        return jsonify({'status': 'error', 'message': 'No se proporcionó ningún script.'}), 400
+
+    # Define un conjunto limitado de funciones y objetos que el script puede usar
+    safe_globals = {
+        "__builtins__": {
+            'print': print,
+            'range': range,
+            'len': len,
+            # Agrega más funciones incorporadas si es necesario
+        },
+        "mirobot": mirobot,  # Objeto que controla el brazo robótico
+        "asyncio": asyncio,
+        "time": time,
+        # Añade otros módulos o servicios específicos que necesites
+    }
+
+    # Redirecciona la salida estándar para capturar prints
+    old_stdout = sys.stdout
+    redirected_output = sys.stdout = io.StringIO()
+
+    try:
+        exec(script, safe_globals)
+        sys.stdout = old_stdout  # Restaura la salida estándar
+        output = redirected_output.getvalue()
+        return jsonify({'status': 'success', 'output': output}), 200
+    except Exception as e:
+        error_message = traceback.format_exc()
+        sys.stdout = old_stdout  # Asegura que la salida estándar se restaure incluso en errores
+        return jsonify({'status': 'error', 'message': error_message}), 500
 
 # ---- MANEJO DE SEÑALES Y EJECUCIÓN ----
 

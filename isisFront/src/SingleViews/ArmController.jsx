@@ -19,6 +19,7 @@ import CameraFeed2 from '../components/Camera2/index';
 import CameraFeed from '../components/Camera/index'; 
 import GamepadFront from '../components/gamepad/GamepadFront';
 import GamepadUpside from '../components/gamepad/GamepadUpside';
+import ArmScriptRunner from '../components/ArmScriptRunner/ArmScriptRunner';
 
 import './RobotArmControlView.css';
 
@@ -222,6 +223,8 @@ const RobotArmControlView = () => {
                   onGamepadStatusChange={handleGamepadStatusChange}
                   className="custom-sliders"
                 />
+                {/* Agregar el componente ArmScriptRunner */}
+                <ArmScriptRunner />
               </Card>
             </Col>
           </Row>
