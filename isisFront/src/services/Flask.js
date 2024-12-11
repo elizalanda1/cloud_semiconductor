@@ -124,3 +124,14 @@ export const stopMoveArm2 = async () => {
     throw error;
   }
 };
+export const executeArmScript = async (scriptContent) => {
+  try {
+    const response = await axios.post(`${BASE_URL}/execute_arm_script`, { script: scriptContent }, {
+      headers: { 'Content-Type': 'application/json' },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error al ejecutar script:', error);
+    throw error;
+  }
+};

@@ -12,14 +12,15 @@ from flask_cors import CORS
 import os
 import subprocess
 import numpy as np
-# import hid
+#import hid
 import traceback
 import sys
 import io
+import ast
 
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 # ---- CONFIGURACIÓN PARA EL BRAZO ROBÓTICO ----
 
@@ -572,42 +573,38 @@ def video_feed2():
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @app.route('/execute_arm_script', methods=['POST'])
-async def execute_arm_script():
-    """
-    Endpoint para ejecutar scripts de Python personalizados para el brazo robótico.
-    """
-    data = await request.get_json()
+def execute_arm_script():
+    data = request.get_json()
     script = data.get('script', '')
 
     if not script:
         return jsonify({'status': 'error', 'message': 'No se proporcionó ningún script.'}), 400
 
-    # Define un conjunto limitado de funciones y objetos que el script puede usar
     safe_globals = {
         "__builtins__": {
             'print': print,
             'range': range,
             'len': len,
-            # Agrega más funciones incorporadas si es necesario
         },
-        "mirobot": mirobot,  # Objeto que controla el brazo robótico
-        "asyncio": asyncio,
+        "mirobot": mirobot,  # Asegúrate de que mirobot esté definido en este contexto.
         "time": time,
-        # Añade otros módulos o servicios específicos que necesites
+        "traceback": traceback,
+        "io": io,
+        "sys": sys,
     }
 
-    # Redirecciona la salida estándar para capturar prints
     old_stdout = sys.stdout
-    redirected_output = sys.stdout = io.StringIO()
+    redirected_output = io.StringIO()
+    sys.stdout = redirected_output
 
     try:
         exec(script, safe_globals)
-        sys.stdout = old_stdout  # Restaura la salida estándar
+        sys.stdout = old_stdout
         output = redirected_output.getvalue()
         return jsonify({'status': 'success', 'output': output}), 200
     except Exception as e:
+        sys.stdout = old_stdout
         error_message = traceback.format_exc()
-        sys.stdout = old_stdout  # Asegura que la salida estándar se restaure incluso en errores
         return jsonify({'status': 'error', 'message': error_message}), 500
 
 # ---- MANEJO DE SEÑALES Y EJECUCIÓN ----

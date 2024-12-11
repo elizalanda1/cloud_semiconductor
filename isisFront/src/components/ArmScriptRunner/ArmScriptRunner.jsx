@@ -75,7 +75,7 @@ except Exception as e:
 
     setLoading(true);
     try {
-      const response = await axios.post('http://localhost:8067/execute_arm_script', { script });
+      const response = await axios.post('http://14.10.2.192:8067/execute_arm_script', { script });
       if (response.data.status === 'success') {
         message.success("Script ejecutado exitosamente.");
         console.log("Output:", response.data.output);
