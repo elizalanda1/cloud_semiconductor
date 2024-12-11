@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Slider, Row, Col, Divider } from 'antd';
+import { Button, Slider, Row, Col, Divider, Typography, Tag } from 'antd';
 import { SwapOutlined, ToolOutlined, StopOutlined, UpOutlined, DownOutlined } from '@ant-design/icons';
 import { moveArm } from '../../services/Flask'; 
 import './index.css';
 
+const { Text, Title } = Typography;
+
 const RobotArmControl = ({ setControlMode, controlMode, onCommandSend, onAnglesChange, onGamepadStatusChange }) => {
-  // Iniciar en modo "buttons"
+  // Initialize in "buttons" mode
   const [angles, setAngles] = useState({
     J1: 0,
     J2: 0,
@@ -18,9 +20,9 @@ const RobotArmControl = ({ setControlMode, controlMode, onCommandSend, onAnglesC
   const [selectedJoint, setSelectedJoint] = useState(1); 
   const [isGamepadConnected, setIsGamepadConnected] = useState(false);
   const [isPumpActive, setIsPumpActive] = useState(false);
-  const [isWalkingPadActive] = useState(false); // ya no usamos caminadora
+  const [isWalkingPadActive] = useState(false); // Walking pad no longer used
 
-  // Notificar cambios de ángulos
+  // Notify angle changes
   const notifyAnglesChange = (updatedAngles) => {
     setAngles(updatedAngles);
     if (onAnglesChange) {
@@ -38,10 +40,10 @@ const RobotArmControl = ({ setControlMode, controlMode, onCommandSend, onAnglesC
     try {
       await moveArm(updatedAngles, isPumpActive ? 1 : 0);
       if (onCommandSend) {
-        onCommandSend(`Moviendo: ${joint} a ${newAngle}°, grip: ${isPumpActive ? 'activado' : 'desactivado'}`);
+        onCommandSend(`Moving: ${joint} to ${newAngle}°, grip: ${isPumpActive ? 'activated' : 'deactivated'}`);
       }
     } catch (error) {
-      console.error('Error al mover el brazo:', error);
+      console.error('Error moving the arm:', error);
     }
   };
 
@@ -51,10 +53,10 @@ const RobotArmControl = ({ setControlMode, controlMode, onCommandSend, onAnglesC
     try {
       await moveArm(angles, !isPumpActive ? 1 : 0);
       if (onCommandSend) {
-        onCommandSend(`Grip ${!isPumpActive ? 'activado' : 'desactivado'}`);
+        onCommandSend(`Grip ${!isPumpActive ? 'activated' : 'deactivated'}`);
       }
     } catch (error) {
-      console.error('Error al controlar el grip:', error);
+      console.error('Error controlling the grip:', error);
     }
   };
 
@@ -62,7 +64,7 @@ const RobotArmControl = ({ setControlMode, controlMode, onCommandSend, onAnglesC
     const nextMode = controlMode === 'sliders' ? 'buttons' : controlMode === 'buttons' ? 'gamepad' : 'sliders';
     setControlMode(nextMode);
     if (onCommandSend) {
-      onCommandSend(`Cambiando a modo: ${nextMode}`);
+      onCommandSend(`Changing to mode: ${nextMode}`);
     }
   };
 
@@ -96,7 +98,7 @@ const RobotArmControl = ({ setControlMode, controlMode, onCommandSend, onAnglesC
           updateAngleAndMove(`J${selectedJoint}`, angles[`J${selectedJoint}`] + 5);
         }
 
-        // Botones de grip
+        // Grip buttons
         if (buttons[0].pressed && !isPumpActive) {
           togglePump();
         }
@@ -112,14 +114,16 @@ const RobotArmControl = ({ setControlMode, controlMode, onCommandSend, onAnglesC
 
   return (
     <div className="robot-arm-control">
-      <h3>── MOTION CONTROL ──</h3>
+      <Title level={4} style={{ textAlign: 'center', marginBottom: '16px' }}>── MOTION CONTROL ──</Title>
 
       {controlMode === 'gamepad' && (
-        <div>
+        <div style={{ marginBottom: '16px' }}>
           {isGamepadConnected ? (
-            <p>Controlling axis: {selectedJoint}</p>
+            <Text strong>
+              Controlling Axis: <Tag color="blue">J{selectedJoint}</Tag>
+            </Text>
           ) : (
-            <p style={{ color: 'red' }}>Gamepad not detected. Connect it to use this mode.</p>
+            <Text type="danger">Gamepad not detected. Connect it to use this mode.</Text>
           )}
         </div>
       )}
@@ -127,8 +131,8 @@ const RobotArmControl = ({ setControlMode, controlMode, onCommandSend, onAnglesC
       {controlMode === 'sliders' && (
         <>
           {[1, 2, 3, 4, 5, 6].map((joint) => (
-            <div className="control-row" key={joint} style={{flexDirection:'column', alignItems:'flex-start'}}>
-              <span style={{ marginBottom:'4px', fontSize:'1rem', fontWeight:'bold', color:'#555' }}>J{joint}: {angles[`J${joint}`]}°</span>
+            <div className="control-row" key={joint} style={{ flexDirection: 'column', alignItems: 'flex-start', marginBottom: '16px' }}>
+              <span style={{ marginBottom: '4px', fontSize: '1rem', fontWeight: 'bold', color: '#555' }}>J{joint}: {angles[`J${joint}`]}°</span>
               <Slider
                 min={-180}
                 max={180}
@@ -136,7 +140,7 @@ const RobotArmControl = ({ setControlMode, controlMode, onCommandSend, onAnglesC
                 onChange={(value) => notifyAnglesChange({ ...angles, [`J${joint}`]: value })}
                 onAfterChange={(value) => updateAngleAndMove(`J${joint}`, value)}
                 tooltip={{ formatter: (value) => `${value}°` }}
-                style={{ width:'100%' }}
+                style={{ width: '100%' }}
               />
             </div>
           ))}
@@ -147,11 +151,11 @@ const RobotArmControl = ({ setControlMode, controlMode, onCommandSend, onAnglesC
         <>
           {[1, 2, 3, 4, 5, 6].map((joint, index) => (
             <React.Fragment key={joint}>
-              <div className="control-row" style={{ justifyContent: 'flex-start', flexWrap: 'wrap', alignItems:'center' }}>
+              <div className="control-row" style={{ justifyContent: 'flex-start', flexWrap: 'wrap', alignItems: 'center', marginBottom: '8px' }}>
                 <span style={{ marginRight: '8px', fontWeight: 'bold' }}>J{joint}:</span>
                 <Button 
                   onClick={() => updateAngleAndMove(`J${joint}`, angles[`J${joint}`] - 5)} 
-                  style={{ marginRight:'8px' }} 
+                  style={{ marginRight: '8px' }} 
                   icon={<DownOutlined />}
                 >
                   -5°
@@ -162,17 +166,17 @@ const RobotArmControl = ({ setControlMode, controlMode, onCommandSend, onAnglesC
                 >
                   +5°
                 </Button>
-                <span style={{ marginLeft:'auto', fontWeight:'bold', color:'#333' }}>
+                <span style={{ marginLeft: 'auto', fontWeight: 'bold', color: '#333' }}>
                   {angles[`J${joint}`]}°
                 </span>
               </div>
-              {index < 5 && <Divider style={{ margin:'8px 0' }} />}
+              {index < 5 && <Divider style={{ margin: '8px 0' }} />}
             </React.Fragment>
           ))}
         </>
       )}
 
-      <div className="additional-controls" style={{ marginTop: '1rem' }}>
+      <div className="additional-controls" style={{ marginTop: '1rem', textAlign: 'center' }}>
         <Button
           type={isPumpActive ? 'danger' : 'primary'}
           onClick={togglePump}
@@ -183,14 +187,15 @@ const RobotArmControl = ({ setControlMode, controlMode, onCommandSend, onAnglesC
         </Button>
       </div>
 
-      <Button
-        type="default"
-        icon={<SwapOutlined />}
-        onClick={handleModeChange}
-        style={{ marginTop: '1rem' }}
-      >
-        Change {controlMode === 'sliders' ? 'Buttons' : controlMode === 'buttons' ? 'Gamepad' : 'Sliders'}
-      </Button>
+      <div style={{ textAlign: 'center', marginTop: '1rem' }}>
+        <Button
+          type="default"
+          icon={<SwapOutlined />}
+          onClick={handleModeChange}
+        >
+          Change to {controlMode === 'sliders' ? 'Buttons' : controlMode === 'buttons' ? 'Gamepad' : 'Sliders'}
+        </Button>
+      </div>
     </div>
   );
 };
