@@ -13,34 +13,34 @@ const ArmScriptRunner = () => {
   const [script, setScript] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Ejemplos predefinidos de scripts
+  // Predefined script examples
   const examples = {
-    "Posición Neutral": `
-# Mover a posición neutral
+    "Neutral Position": `
+# Move to neutral position
 try:
     mirobot.writeangle(0, 0, 0, 0, 0, 0, 0)
     time.sleep(1)
 except Exception as e:
     print(f"Error: {e}")
     `,
-    "Activar Grip": `
-# Activar el grip
+    "Activate Grip": `
+# Activate the grip
 try:
     mirobot.pump(1)
     time.sleep(2)
 except Exception as e:
     print(f"Error: {e}")
     `,
-    "Mover Brazo a Posición Específica": `
-# Mover el brazo a una posición específica
+    "Move Arm to Specific Position": `
+# Move the arm to a specific position
 try:
     mirobot.writeangle(0, 45, 30, 15, 0, -30, 0)
     time.sleep(2)
 except Exception as e:
     print(f"Error: {e}")
     `,
-    "Desactivar Grip y Regresar a Neutral": `
-# Desactivar grip y regresar a neutral
+    "Deactivate Grip and Return to Neutral": `
+# Deactivate the grip and return to neutral
 try:
     mirobot.pump(0)
     time.sleep(1)
@@ -49,8 +49,8 @@ try:
 except Exception as e:
     print(f"Error: {e}")
     `,
-    "Ejecutar Secuencia Completa": `
-# Secuencia completa de movimiento y grip
+    "Execute Full Sequence": `
+# Full sequence of movement and grip
 try:
     mirobot.writeangle(0, 45, 30, 15, 0, -30, 0)
     time.sleep(2)
@@ -69,7 +69,7 @@ except Exception as e:
 
   const handleExecuteScript = async () => {
     if (!script.trim()) {
-      message.error("Por favor, ingresa un script de Python.");
+      message.error("Please enter a Python script.");
       return;
     }
 
@@ -77,14 +77,14 @@ except Exception as e:
     try {
       const response = await axios.post('http://14.10.2.192:8067/execute_arm_script', { script });
       if (response.data.status === 'success') {
-        message.success("Script ejecutado exitosamente.");
+        message.success("Script executed successfully.");
         console.log("Output:", response.data.output);
       } else {
-        message.error("Error al ejecutar el script.");
+        message.error("Error executing the script.");
         console.error("Error:", response.data.message);
       }
     } catch (error) {
-      message.error("Error al comunicarse con el servidor.");
+      message.error("Error communicating with the server.");
       console.error("Error:", error);
     } finally {
       setLoading(false);
@@ -96,10 +96,10 @@ except Exception as e:
   };
 
   return (
-    <Card title="Ejecutar Script del Brazo Robótico" style={{ marginTop: '2rem' }}>
-      <Title level={4}>Ejecutar Script del Brazo Robótico</Title>
+    <Card title="Execute Robot Arm Script" style={{ marginTop: '2rem' }}>
+      <Title level={4}>Execute Robot Arm Script</Title>
       <Select
-        placeholder="Selecciona un ejemplo"
+        placeholder="Select an example"
         style={{ width: '100%', marginBottom: '1rem' }}
         onChange={handleSelectExample}
       >
@@ -113,7 +113,7 @@ except Exception as e:
         rows={10}
         value={script}
         onChange={(e) => setScript(e.target.value)}
-        placeholder="Escribe tu script de Python aquí..."
+        placeholder="Write your Python script here..."
         style={{ marginBottom: '1rem' }}
       />
       <Button
@@ -123,7 +123,7 @@ except Exception as e:
         loading={loading}
         block
       >
-        Ejecutar Script
+        Execute Script
       </Button>
     </Card>
   );
